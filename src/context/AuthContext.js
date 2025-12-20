@@ -1,4 +1,4 @@
-// src/context/AuthContext.js
+//  frontend_AcademiA\src\context\AuthContext.js
 
 // Proveedor que lee los datos del localStorage solo una vez y los mantiene disponibles.
 

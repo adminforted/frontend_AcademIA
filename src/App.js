@@ -84,7 +84,7 @@ const RouterContent = () => {
         {/* Actúa como el contenedor principal para todas las demás rutas. Asegura que páginas como /home, /docentes, /estudiante, etc., se rendericen dentro del DefaultLayout (es decir, con el encabezado, el pie de página y el menú lateral de CoreUI). */}
 
         {/* Estructura del enrutamiento
-          <Route: Componente que le "dice" al router que componente renderizar cuando la URL coincide con el path especificado
+          <Route: indica al router que componente renderizar cuando la URL coincide con el path especificado
           path="estudiante" : Define el segmento de URL que activará esta ruta. En este caso será, /estudiante 
           element: Define el elemento (componente) que se debe renderizar cuando el path coincide. En este caso "Estudiante"
           <ProtectedRoute>: El componente a renderizar se "envuelve" en ProtectedRoute, que verifica si el usuario está autenticado.
