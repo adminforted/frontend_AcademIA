@@ -157,67 +157,31 @@ export default function Estudiante() {
 
         <div style={{ padding: '10px' }}>
             <h1 className="ms-1" >Estudiantes</h1>
-            <CContainer>
+            <CContainer className="Contenedor Principal" >
+                CContainer Principal
 
-
+                {/* --------- CCard que envuelve todo el contenido del Contenedor Principal --------- */}
                 <CCard className="mb-1">
-                    {/* ---------- ENCABEZADO ---------- */}
-                    <CCardHeader className="py-2 bg-white">
-                        <CRow className="justify-content-between align-items-center">
-                            <CCol xs={12} sm="auto">
-                                <h4 id="titulo" className="mb-0">
-                                    Gestión de Estudiantes
-                                </h4>
-                                <div className="small text-body-secondary">
-                                    Administración de alumnos del establecimiento
-                                </div>
-                            </CCol>
+                    CCard Principal
 
-                            {/* Botón para agregar nuevo estudiante */}
-                            <CCol xs={12} sm="auto" className="text-md-end">
-                                <CButton
-                                    color="primary"
-                                    className="shadow-sm"
-                                    size="sm"
-                                    onClick={() => handleClickEditar('')} // Abrir modal vacío para crear nuevo
-                                >
-                                    <CIcon icon={cilPlus} className="me-1" />
-                                    Nuevo Estudiante
-                                </CButton>
-                            </CCol>
-                        </CRow>
+                    {/* --------- Encabezado del CCard --------- */}
+                    <CCardHeader className="py-2 bg-white">
+                        Encabezado CCard Principal
                     </CCardHeader>
 
-
-
-                    {/* ---------- CUERPO ---------- */}
+                    {/* ---------- CUERPO DE LA TABLA ---------- */}
                     <CCardBody className="px-4 pt-1 pb-2 border border-light">
-
-                        {/* ---------- FILTROS AVANZADOS Y BÚSQUEDA GLOBAL ---------- */}
-                        <AdvancedFilters
-                            searchTerm={searchTerm}
-                            setSearchTerm={setSearchTerm}
-                            columnFilters={columnFilters}
-                            setColumnFilters={setColumnFilters}
-                            filterOptions={[
-                                { value: 'nombre', label: 'Nombre' },
-                                { value: 'apellido', label: 'Apellido' },
-                                { value: 'email', label: 'Email' },
-                                { value: 'domicilio', label: 'Domicilio' },
-                                { value: 'telefono', label: 'Teléfono' },
-                            ]}
-                        />
-
-                        {/* ---------- ACCIONES DE TABLA (Exportar, etc.) ---------- */}
-                        <TableActions table={table} />
-
-                        {/* Tabla de estudiantes */}
-                        <GenericTable table={table} />
+                        CCard Body
+                        <p />
+                        <p />
+                        <p />
+                        <p />
+                        Fin CCard Body
                     </CCardBody>
 
-                    {/* ---------- PIE DE PÁGINA CON PAGINACIÓN ---------- */}
+                    {/* ---------- PIE DE PÁGINA ---------- */}
                     <CCardFooter
-                        className="bg-white border-top px-3 py-1"
+                        className="bg-white border-top px-3 py-1 color=red"
                         style={{
                             position: 'sticky',
                             bottom: 0,
@@ -225,45 +189,15 @@ export default function Estudiante() {
                             boxShadow: '0 -2px 5px rgba(0,0,0,0.1)',
                         }}
                     >
-                        <TablePagination table={table} />
+                        <p > CCard Footer </p>
+
+                        Fin CCard Footer
                     </CCardFooter>
+                    <p />
+                    Fin CCard Principal
                 </CCard>
 
-                {/* ---------- MODALES ---------- */}
-
-                {/* Modal de edición/creación de estudiante */}
-                <ModalNewEdit
-                    visible={editModalVisible}
-                    onClose={() => {
-                        setEditModalVisible(false)
-                        setStudentToEdit(null)
-                    }}
-                    title={studentToEdit ? 'Editar Estudiante' : 'Nuevo Estudiante'}
-                    initialData={studentToEdit || {}}
-                    onSave={handleSaveStudent}
-                    fields={[
-                        //{ name: 'name', label: 'Apellido y Nombre', type: 'text', required: true, placeholder: 'Ejemplo: Pérez Carlos' },
-                        // { name: 'name', label: 'Apellido y Nombre', type: 'text', required: true, placeholder: 'Ejemplo: Pérez Carlos' },
-                        { name: 'nombre', label: 'Nombre', type: 'text', required: true, placeholder: 'Ejemplo: Carlos' },
-                        { name: 'apellido', label: 'Apellido', type: 'text', required: true, placeholder: 'Ejemplo: Pérez' },
-                        { name: 'email', label: 'Email', type: 'email', required: false, placeholder: 'ejemplo@mail.com' },
-                        { name: 'fec_nac', label: 'Fecha de Nacimiento', type: 'date', required: false },
-                        { name: 'domicilio', label: 'Domicilio', type: 'text', required: false, placeholder: 'Calle 123' },
-                        { name: 'telefono', label: 'Teléfono', type: 'tel', required: false, placeholder: '1234567890' },
-                        { name: 'password', label: 'Contraseña', type: 'password', required: false, placeholder: 'Solo si se crea usuario', fullWidth: true },
-                    ]}
-                />
-
-                {/* Modal de confirmación de eliminación */}
-                <ModalConfirmDel
-                    visible={deleteModalVisible}
-                    onClose={() => {
-                        setDeleteModalVisible(false)
-                        setStudentToDelete(null)
-                    }}
-                    onConfirm={handleDelete}
-                    userId={studentToDelete}
-                />
+                Fin CContainer Principal
             </CContainer>
         </div>)
 }
