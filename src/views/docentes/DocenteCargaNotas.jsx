@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react'
 import { CButton, CCard, CCardHeader, CCardBody, CCardFooter, CCol, CRow, CContainer, } from '@coreui/react'
 
 import '../../css/PersonalStyles.css'
-import CargarNotaIndividual from '../../views/notas/CargaNotaIndividual'
+import CargarNotas from '../notas/CargaNotas'
 
 // Importamos el hook para leer datos de alumnos de la BD
 import { useStudentsData } from '../../hooks/useStudentsData'
@@ -41,22 +41,26 @@ export default function DocenteCargaNotas() {
 
                     {/* ----------  BODY --------------- */}
                     <CCardBody className="px-4 pt-1 pb-2 border border-light">
-                        <CargarNotaIndividual />
-                    </CCardBody>
 
-                    {/* ----------  FOOTER --------------- */}
-                    <CCardFooter
-                        className="bg-white border-top px-3 py-1" >
-                        FOOTER
-                    </CCardFooter>
 
-                </CCard>
+                        <CargarNotas />
+
+
+            </CCardBody>
+
+            {/* ----------  FOOTER --------------- */}
+            <CCardFooter
+                className="bg-white border-top px-3 py-1" >
+                FOOTER
+            </CCardFooter>
+
+        </CCard>
 
 
 
             </CContainer >
 
-        </div>
+        </div >
 
     )
 
