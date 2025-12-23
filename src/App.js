@@ -75,44 +75,33 @@ const RouterContent = () => {
     >
       {/* Rutas púbilcas / singulares.  Tienen acceso directo, sin usar el DefaultLayout */}
       <Routes>
+        <Route exact path="/" element={<Navigate to="/login" replace />} />
         <Route exact path="/login" name="Login Page" element={<Login />} />
         <Route exact path="/register" name="Register Page" element={<Register />} />
         <Route exact path="/verify-email" name="Verify Email" element={<VerifyEmail />} />
         <Route exact path="/404" name="Page 404" element={<Page404 />} />
         <Route exact path="/500" name="Page 500" element={<Page500 />} />
-        <Route exact path="/" name="Home" element={<Login />} />
-
-        {/* Rutas protegidas anidadas bajo el Layout Principal (DefaultLayout) */}
-        {/* Actúa como el contenedor principal para todas las demás rutas. Asegura que páginas como /home, /docentes, /estudiante, etc., se rendericen dentro del DefaultLayout (es decir, con el encabezado, el pie de página y el menú lateral de CoreUI). */}
-
-        {/* Estructura del enrutamiento
-          <Route: indica al router que componente renderizar cuando la URL coincide con el path especificado
-          path="estudiante" : Define el segmento de URL que activará esta ruta. En este caso será, /estudiante 
-          element: Define el elemento (componente) que se debe renderizar cuando el path coincide. En este caso "Estudiante"
-          <ProtectedRoute>: El componente a renderizar se "envuelve" en ProtectedRoute, que verifica si el usuario está autenticado.
-          <Estudiante />: Componente que contiene la interfaz a renderizar. Tiene que haber sido importado con React.lazy()  
-        */}
-
 
         <Route path="*" element={<DefaultLayout />}>
-
           <Route path="home" element={<ProtectedRoute> <Home /> </ProtectedRoute>} />
-
           <Route path="docentes" element={<ProtectedRoute>  <Docentes />  </ProtectedRoute>} />
           <Route path="docentes/informes" element={<ProtectedRoute> <DocenteInformes /> </ProtectedRoute>} />
           <Route path="docentes/cargaNotas" element={<ProtectedRoute> <DocenteCargaNotas /> </ ProtectedRoute>} />
-
           <Route path="estudiante" element={<ProtectedRoute> <Estudiante /> </ProtectedRoute>} />
           <Route path="estudiante/trayectoria" element={<ProtectedRoute> <Trayectoria /> </ProtectedRoute>} />
           <Route path="estudiante/informes" element={<ProtectedRoute> <EstudiantesInformes /> </ProtectedRoute>} />
-
           <Route path="cursos" element={<ProtectedRoute> <Curso /> </ProtectedRoute>} />
           <Route path="cursos/informes" element={<ProtectedRoute> <CursoInformes /> </ProtectedRoute>} />
-
           <Route path="materias" element={<ProtectedRoute> <Materias /> </ProtectedRoute>} />
           <Route path="materias/informes" element={<ProtectedRoute> <MateriasInformes /> </ProtectedRoute>} />
 
-          <Route path="usuarios" element={<ProtectedRoute> <UserManagement /> </ProtectedRoute>} />
+          <Route
+            path="usuarios" 
+            element={
+              <ProtectedRoute requiredRoles={['ADMIN_SISTEMA']}> 
+                <UserManagement /> 
+              </ProtectedRoute>
+            } />
 
           {/* Ruta por defecto para cualquier otra URL no coincidente dentro del layout */}
           <Route path="*" element={<Page404 />} />
@@ -135,12 +124,12 @@ const ProtectedRoute = ({ children, requiredRoles = [] }) => {
   // Si el token existe, verificar Autorización (Rol)
   // Obtener los datos del usuario del localStorage
   let user = null
-try {
-  user = JSON.parse(localStorage.getItem('user'))
-} catch {
-  localStorage.clear()
-  return <Navigate to="/login" replace />
-}
+  try {
+    user = JSON.parse(localStorage.getItem('user'))
+  } catch {
+    localStorage.clear()
+    return <Navigate to="/login" replace />
+  }
 
 
 
@@ -164,15 +153,14 @@ try {
 }
 
 const App = () => {
+  useEffect(() => {
+    const token = localStorage.getItem('token')
 
-useEffect(() => {
-  const token = localStorage.getItem('token')
-
-  if (!token || isTokenExpired(token)) {
-    localStorage.clear()
-    window.location.href = '/login'
-  }
-}, [])
+    // Se limpia sólo si el token existe pero está expirado
+    if (token && isTokenExpired(token)) {
+      localStorage.clear()
+    }
+  }, [])
 
   return (
     <HashRouter>
