@@ -18,6 +18,9 @@ import { usePlanillaCalificaciones } from '../../hooks/useCalificaciones.js';
 // Importar configuración de columnas
 import { getTableColumns } from '../../utils/columns.js'
 
+//  Importamos el servicio apiMaterias que contiene la función getCiclosAll.
+import apiMaterias, { getCiclosAll } from '../../api/apiMaterias.jsx'
+
 // Estado inicial para filtros
 const initialFilters = []
 
@@ -56,17 +59,18 @@ export default function CargaNotaAlumno() {
     */
 
     const [materiaId, setMateriaId] = useState('');
-    const [periodoId, setPeriodoId] = useState('1'); // o el ID del ciclo actual
+    const [ciclos, setCiclos] = useState([]);
+    const [selectedCicloId, setSelectedCicloId] = useState(""); // ← guarda solo el ID como string o number
+
 
 
     const {
         data: tableData,
         loading,
         error
-    } = usePlanillaCalificaciones(materiaId, periodoId);
+    } = usePlanillaCalificaciones(materiaId, ciclos);
 
     console.log('materiaId:', materiaId);
-    console.log('periodoId:', periodoId);
     console.log('tableData:', tableData);
     console.log('loading:', loading);
     console.log('error:', error);
@@ -89,8 +93,24 @@ export default function CargaNotaAlumno() {
     const [sorting, setSorting] = useState([]) // Ordenamiento
 
 
-    // ==================== CONFIGURACIÓN ESPECÍFICA DE COLUMNAS PARA CARGA NOTAS ====================
+    // ==================== CARGAR LOS CICLOS AL MONTAR EL COMPONENTE ====================
+    useEffect(() => {
+        const fetchCiclos = async () => {
+            try {
+                const response = await apiMaterias.getCiclosAll();  // Ejecuto la apiMaterias.getCiclos
+                setCiclos(response.data);   // Guardo los datos en la variable ciclos
 
+
+            } catch (err) {
+                console.error("Error al cargar ciclos lectivos:", err);
+            }
+        };
+        fetchCiclos();
+    }, []);
+
+
+
+    // ==================== CONFIGURACIÓN ESPECÍFICA DE COLUMNAS PARA CARGA NOTAS ====================
     const cargaNotasColumnsConfig = [
         { id: 'index', header: 'Nº', cell: ({ row }) => row.index + 1 },
 
@@ -155,10 +175,27 @@ export default function CargaNotaAlumno() {
                     <CRow className="g-3">
                         <CCol md={3}>
                             <label className="form-label text-uppercase small fw-semibold text-secondary">Ciclo Lectivo</label>
-                            <select className="form-select" onChange={(e) => setPeriodoId(e.target.value)}>
-                                <option value="1">2025</option>
-                                <option value="2">2024</option>
+
+                            {/* Select Dinámico con los datos de la DB */}
+                            <select
+                                className="form-select"
+                                value={selectedCicloId}
+                                onChange={(e) => setSelectedCicloId(e.target.value)}
+                            >
+                                {/*  Primera opcióndel select */}
+                                <option value="">Seleccionar Ciclo</option>
+
+                                {/*  Mapeo las opciones restantes del select */}
+                                {ciclos.map((ciclos) => (
+                                    <option
+                                        key={ciclos.id_ciclo_lectivo}
+                                        value={ciclos.id_ciclo_lectivo}
+                                    >
+                                        {ciclos.nombre_ciclo_lectivo}
+                                    </option>
+                                ))}
                             </select>
+
                         </CCol>
                         <CCol md={3}>
                             <label className="form-label text-uppercase small fw-semibold text-secondary">Curso</label>
