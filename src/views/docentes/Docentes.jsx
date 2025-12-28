@@ -19,6 +19,9 @@ import { getDocentes, createDocente, updateDocente, deleteDocente } from '../../
 // Importar configuración de columnas
 import { getTableColumns } from '../../utils/columns.js'
 
+// Importar datos de configuracion de modal
+import { docenteFields } from '../../utils/FormConfigs/formConfigs.js'
+
 // Estado inicial para filtros
 const initialFilters = []
 
@@ -27,6 +30,14 @@ const initialFilters = []
  * Gestiona la visualización y administración de docentes (tbl_entidad donde tipo_entidad = 'DOC')
  */
 export default function Docentes() {
+
+  //# Maneja la lógica de la modal de edición
+  const handleCloseModal = () => {
+    setEditModalVisible(false);
+    setDocenteToEdit(null);
+  };
+
+
 
   // ---------- Estados principales ----------
   const [tableData, setTableData] = useState([]) // Datos de la tabla de docentes
@@ -41,15 +52,16 @@ export default function Docentes() {
   const [editModalVisible, setEditModalVisible] = useState(false) // Modal de edición/creación
   const [docenteToEdit, setDocenteToEdit] = useState(null) // Datos del docente a editar
 
+  // Función auxiliar para obtener la fecha actual en formato YYYY-MM-DD
+  const getTodayDate = () => new Date().toISOString().split('T')[0];
+
   // ---------- Obtener docentes al cargar el componente ----------
   useEffect(() => {
     fetchDocentes()
   }, [])
 
-  /*
-     * Obtiene la lista de docentes desde el backend
-     * Esta función llama al endpoint /api/docentes que filtra por tipo_entidad = 'DOC'
-  */
+
+  // Obtiene la lista de docentes desde el backend, llamando al endpoint /api/docentes que filtra por tipo_entidad = 'DOC'
 
   const fetchDocentes = async () => {
     try {
@@ -124,7 +136,7 @@ export default function Docentes() {
 
 
 
- // ==================== CONFIGURACIÓN ESPECÍFICA DE COLUMNAS PARA DOCENTES ====================
+  // ==================== CONFIGURACIÓN ESPECÍFICA DE COLUMNAS PARA DOCENTES ====================
 
   const docentesColumnsConfig = [
     { accessorKey: 'nombre', header: 'Nombre' },
@@ -142,6 +154,7 @@ export default function Docentes() {
     { accessorKey: 'email', header: 'Email' },
     { accessorKey: 'domicilio', header: 'Domicilio' },
     { accessorKey: 'telefono', header: 'Teléfono' },
+    { accessorKey: 'tel_cel', header: 'Tel/Cel' },
   ]
 
   // ==================== GENERACIÓN DE COLUMNAS CON FUNCIÓN REUTILIZABLE ====================
@@ -198,7 +211,10 @@ export default function Docentes() {
                   color="primary"
                   className="shadow-sm"
                   size="sm"
-                  onClick={() => handleClickEditar('')} // Abrir modal vacío para crear nuevo
+                  onClick={() => {
+                    setDocenteToEdit(null); // Aseguramos que está limpio
+                    setEditModalVisible(true);
+                  }}
                 >
                   <CIcon icon={cilPlus} className="me-1" />
                   Nuevo Docente
@@ -250,24 +266,12 @@ export default function Docentes() {
         {/* Modal de edición/creación de docente */}
         <ModalNewEdit
           visible={editModalVisible}
-          onClose={() => {
-            setEditModalVisible(false)
-            setDocenteToEdit(null)
-          }}
+          onClose={handleCloseModal}
           title={docenteToEdit ? 'Editar Docente' : 'Nuevo Docente'}
-          initialData={docenteToEdit || {}}
+          // EXPLICACIÓN: Si docenteToEdit es null (nuevo), creamos un objeto con la fecha de hoy
+          initialData={docenteToEdit ? docenteToEdit : { created_at: getTodayDate() }}
           onSave={handleSaveDocente}
-          fields={[
-            //{ name: 'name', label: 'Apellido y Nombre', type: 'text', required: true, placeholder: 'Ejemplo: Pérez Carlos' },
-            // { name: 'name', label: 'Apellido y Nombre', type: 'text', required: true, placeholder: 'Ejemplo: Pérez Carlos' },
-            { name: 'nombre', label: 'Nombre', type: 'text', required: true, placeholder: 'Ejemplo: Carlos' },
-            { name: 'apellido', label: 'Apellido', type: 'text', required: true, placeholder: 'Ejemplo: Pérez' },
-            { name: 'email', label: 'Email', type: 'email', required: false, placeholder: 'ejemplo@mail.com' },
-            { name: 'fec_nac', label: 'Fecha de Nacimiento', type: 'date', required: false },
-            { name: 'domicilio', label: 'Domicilio', type: 'text', required: false, placeholder: 'Calle 123' },
-            { name: 'telefono', label: 'Teléfono', type: 'tel', required: false, placeholder: '1234567890' },
-            { name: 'password', label: 'Contraseña', type: 'password', required: false, placeholder: 'Solo si se crea usuario', fullWidth: true },
-          ]}
+          fields={docenteFields} // <-- Usa la constante importada
         />
 
         {/* Modal de confirmación de eliminación */}
@@ -281,7 +285,7 @@ export default function Docentes() {
           userId={docenteToDelete}
         />
       </CContainer>
-    </div>
+    </div >
   )
 
 }

@@ -1,3 +1,4 @@
+//  frontend_AcademiA\src\views\docentes\Docentes.jsx
 import React, { useState, useEffect } from 'react'
 import { CButton, CCard, CCardHeader, CCardBody, CCardFooter, CCol, CRow, CContainer } from '@coreui/react'
 import { cilPlus } from '@coreui/icons'
@@ -16,7 +17,7 @@ import ModalNewEdit from '../../modals/ModalNewEdit.jsx'
 import { getDocentes, createDocente, updateDocente, deleteDocente } from '../../api/api.js'
 
 // Importar configuración de columnas
-import { getDocentesColumns } from '../../utils/columns.js'
+import { getTableColumns } from '../../utils/columns.js'
 
 // Estado inicial para filtros
 const initialFilters = []
@@ -25,7 +26,8 @@ const initialFilters = []
  * Componente Docentes
  * Gestiona la visualización y administración de docentes (tbl_entidad donde tipo_entidad = 'DOC')
  */
-export default function docentes() {
+export default function Docentes() {
+
   // ---------- Estados principales ----------
   const [tableData, setTableData] = useState([]) // Datos de la tabla de docentes
   const [searchTerm, setSearchTerm] = useState('') // Búsqueda global
@@ -120,9 +122,38 @@ export default function docentes() {
     }
   }
 
-  // ---------- Configuración de columnas ----------
-  // Usamos la configuración específica para docentes
-  const columns = getDocentesColumns(confirmDelete, handleClickEditar)
+
+
+ // ==================== CONFIGURACIÓN ESPECÍFICA DE COLUMNAS PARA DOCENTES ====================
+
+  const docentesColumnsConfig = [
+    { accessorKey: 'nombre', header: 'Nombre' },
+    { accessorKey: 'apellido', header: 'Apellido' },
+    {
+      accessorKey: 'fec_nac',
+      header: 'Fecha Nac.',
+      cell: (info) => {
+        const dateValue = info.getValue()
+        if (!dateValue) return '-'
+        const [year, month, day] = dateValue.split('-')
+        return `${day}/${month}/${year}`
+      },
+    },
+    { accessorKey: 'email', header: 'Email' },
+    { accessorKey: 'domicilio', header: 'Domicilio' },
+    { accessorKey: 'telefono', header: 'Teléfono' },
+  ]
+
+  // ==================== GENERACIÓN DE COLUMNAS CON FUNCIÓN REUTILIZABLE ====================
+
+  const columns = getTableColumns(
+    docentesColumnsConfig,
+    confirmDelete,
+    handleClickEditar
+  )
+
+
+
 
   // ---------- Configuración de TanStack Table ----------
   const table = useReactTable({
@@ -145,7 +176,7 @@ export default function docentes() {
   })
 
   return (
-    <div style={{ padding: '10px'}}>
+    <div style={{ padding: '10px' }}>
       <h1 className="ms-1" >Docentes</h1>
       <CContainer>
         <CCard className="mb-1">

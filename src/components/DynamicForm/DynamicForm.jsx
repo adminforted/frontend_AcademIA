@@ -1,76 +1,81 @@
-// Componente de formulario dinámico y reutilizable
-// Renderiza campos de input basándose en la configuración recibida via props
+//  frontend_AcademiA\src\components\DynamicForm\DynamicForm.jsx
 
 import React, { useState, useEffect } from 'react'
-import { CForm, CFormInput, CFormLabel, CButton, CRow, CCol } from '@coreui/react'
+import { CRow, CCol, CForm, CFormLabel, CFormInput, CButton, CInputGroup, CInputGroupText, CFormSelect } from '@coreui/react'
+import CIcon from '@coreui/icons-react'
+import { cilUser, cilEnvelopeOpen, cilCalendar, cilPhone, cilLockLocked, cilList } from '@coreui/icons'
 
-/**
- * DynamicForm - Formulario genérico configurable
- * 
- * @param {Array} fields - Array de objetos definiendo campos:
- *   { name, label, type, required, placeholder }
- * @param {Object} initialData - Datos iniciales del formulario
- * @param {Function} onSubmit - Callback al guardar (recibe formData)
- * @param {Function} onCancel - Callback al cancelar
- */
 const DynamicForm = ({ fields, initialData, onSubmit, onCancel }) => {
-    const [formData, setFormData] = useState({})
+  const [formData, setFormData] = useState({})
 
-    // Inicializar formData con initialData o valores vacíos
-    useEffect(() => {
-        const initial = {}
-        fields.forEach(field => {
-            initial[field.name] = initialData?.[field.name] || ''
-        })
-        setFormData(initial)
-    }, [initialData, fields])
+  // Actualizar el estado interno cuando cambian los datos iniciales (ej: al pasar de Crear a Editar)
+  useEffect(() => {
+    setFormData(initialData || {})
+  }, [initialData])
 
-    // Manejar cambio de inputs
-    const handleChange = (e) => {
-        const { name, value } = e.target
-        setFormData(prev => ({ ...prev, [name]: value }))
-    }
+  const handleChange = (e) => {
+    const { name, value } = e.target
+    setFormData((prev) => ({ ...prev, [name]: value }))
+  }
 
-    // Manejar submit
-    const handleSubmit = (e) => {
-        e.preventDefault()
-        onSubmit(formData)
-    }
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    onSubmit(formData)
+  }
 
-    return (
-        <CForm onSubmit={handleSubmit}>
-            <CRow>
-                {fields.map((field) => (
-                    <CCol xs={12} md={field.fullWidth ? 12 : 6} key={field.name} className="mb-3">
-                        <CFormLabel htmlFor={field.name}>
-                            {field.label} {field.required && <span className="text-danger">*</span>}
-                        </CFormLabel>
-                        <CFormInput
-                            type={field.type || 'text'}
-                            id={field.name}
-                            name={field.name}
-                            placeholder={field.placeholder || ''}
-                            value={formData[field.name] || ''}
-                            onChange={handleChange}
-                            required={field.required}
-                        />
-                    </CCol>
-                ))}
-            </CRow>
+  // Lógica para elegir icono según el nombre del campo
+  const getIcon = (name) => {
+    const n = name.toLowerCase()
+    if (n.includes('email')) return cilEnvelopeOpen
+    if (n.includes('pass')) return cilLockLocked
+    if (n.includes('fec') || n.includes('date')) return cilCalendar
+    if (n.includes('tel') || n.includes('cel')) return cilPhone
+    if (n.includes('tipo') || n.includes('id_')) return cilList
+    return cilUser
+  }
 
-            {/* Botones de acción */}
-            <CRow className="mt-3">
-                <CCol className="d-flex justify-content-end gap-2">
-                    <CButton color="secondary" onClick={onCancel}>
-                        Cancelar
-                    </CButton>
-                    <CButton color="primary" type="submit">
-                        Guardar
-                    </CButton>
-                </CCol>
-            </CRow>
-        </CForm>
-    )
+  return (
+    <CForm onSubmit={handleSubmit}>
+      <CRow className="g-3">
+        {fields.map((field) => (
+          <CCol md={field.fullWidth ? 12 : 6} key={field.name}>
+            <CFormLabel className="small text-muted fw-bold">{field.label}</CFormLabel>
+            <CInputGroup className="shadow-sm">
+              <CInputGroupText><CIcon icon={getIcon(field.name)} /></CInputGroupText>
+              
+              {/* Renderizado condicional: Select o Input */}
+              {field.type === 'select' ? (
+                <CFormSelect
+                  name={field.name}
+                  value={formData[field.name] || ''}
+                  onChange={handleChange}
+                  required={field.required}
+                >
+                  <option value="">Seleccionar...</option>
+                  {field.options?.map(opt => (
+                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                  ))}
+                </CFormSelect>
+              ) : (
+                <CFormInput
+                  type={field.type || 'text'}
+                  name={field.name}
+                  value={formData[field.name] || ''}
+                  onChange={handleChange}
+                  placeholder={field.placeholder}
+                  required={field.required}
+                />
+              )}
+            </CInputGroup>
+          </CCol>
+        ))}
+      </CRow>
+      <div className="mt-4 d-flex justify-content-end gap-2 border-top pt-3">
+        <CButton color="secondary" variant="ghost" onClick={onCancel}>Cancelar</CButton>
+        <CButton color="primary" type="submit" className="px-4 shadow">Guardar</CButton>
+      </div>
+    </CForm>
+  )
 }
 
 export default DynamicForm
