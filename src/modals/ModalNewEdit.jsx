@@ -6,6 +6,7 @@ import DynamicForm from '../components/DynamicForm/DynamicForm'
 
 const ModalNewEdit = ({ visible, onClose, title, initialData, onSave, fields }) => {
   return (
+    
     <CModal 
       size="lg" 
       alignment="center" 
@@ -14,6 +15,7 @@ const ModalNewEdit = ({ visible, onClose, title, initialData, onSave, fields }) 
       onClose={onClose}
       className="shadow-lg"
     >
+
       <CModalHeader className="bg-light">
         <CModalTitle className="fw-bold text-primary">{title}</CModalTitle>
       </CModalHeader>

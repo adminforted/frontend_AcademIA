@@ -71,7 +71,7 @@ const actionsColumn = (confirmDelete, handleClickEditar) =>
         <a
           className="text-muted hover:text-danger cursor-pointer"
           title="Borrar"
-          onClick={() => confirmDelete(row.original.id)}
+          onClick={() => confirmDelete(row.original)} // Pasamos el objeto completo
         >
           <CIcon icon={cilTrash} size="lg" className="text-gray-600" />
         </a>

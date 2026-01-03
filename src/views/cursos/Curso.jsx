@@ -19,7 +19,7 @@ import GlobalSearch from '../../components/globalSearch/GlobalSearch.jsx'
 import apiCursos from '../../api/apiCursos.jsx'
 
 //  Importar hook para obtener datos de los cursos
-import { useCursosData } from '../../hooks/useCursosData.js'
+import { useCursosCompletoData } from '../../hooks/useCursosCompleto.js'
 
 // Importar configuración de columnas
 import { getTableColumns } from '../../utils/columns.js'
@@ -31,10 +31,10 @@ export default function Curso() {
 
     // Traemos los datos de los cursos mediante el hook y los desestructuramos
     const {
-        cursosData: tableData,
-        setCursosData: setTableData,
+        cursosCompletoData: tableData,
+        setCursosCompletoData: setTableData,
         loading
-    } = useCursosData()
+    } = useCursosCompletoData()
 
 
     // ---------- Estados principales ----------
@@ -65,8 +65,8 @@ export default function Curso() {
 
     const cursoColumnsConfig = [
         { accessorKey: 'curso', header: 'Curso' },
-        { accessorKey: 'apellido', header: 'Ciclo lectivo' },
-        { accessorKey: 'email', header: 'Plan' },
+        { accessorKey: 'ciclo.nombre_ciclo_lectivo', header: 'Ciclo lectivo'},
+        { accessorKey: 'ciclo.plan.nombre_plan', header: 'Plan de Estudios' },
     ]
 
     // ==================== GENERACIÓN DE COLUMNAS FINALES CON LA FUNCIÓN REUTILIZABLE ====================

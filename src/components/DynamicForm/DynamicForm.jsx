@@ -8,6 +8,10 @@ import { cilUser, cilEnvelopeOpen, cilCalendar, cilPhone, cilLockLocked, cilList
 const DynamicForm = ({ fields, initialData, onSubmit, onCancel }) => {
   const [formData, setFormData] = useState({})
 
+  // Detectamos si es edición (si el registro ya tiene un ID o PK)
+  // Sirve para distintas opciones si es modal de edicion o de alta
+  const isEdit = !!initialData?.id;
+
   // Actualizar el estado interno cuando cambian los datos iniciales (ej: al pasar de Crear a Editar)
   useEffect(() => {
     setFormData(initialData || {})
@@ -20,7 +24,15 @@ const DynamicForm = ({ fields, initialData, onSubmit, onCancel }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    onSubmit(formData)
+    console.log('🟢 DynamicForm handleSubmit ejecutado')
+    console.log('📦 formData:', formData)
+    console.log('🔧 onSubmit recibido?:', typeof onSubmit, onSubmit)
+
+    if (typeof onSubmit === 'function') {
+      onSubmit(formData)
+    } else {
+      console.error('❌ onSubmit NO es una función!')
+    }
   }
 
   // Lógica para elegir icono según el nombre del campo
@@ -37,38 +49,42 @@ const DynamicForm = ({ fields, initialData, onSubmit, onCancel }) => {
   return (
     <CForm onSubmit={handleSubmit}>
       <CRow className="g-3">
-        {fields.map((field) => (
-          <CCol md={field.fullWidth ? 12 : 6} key={field.name}>
-            <CFormLabel className="small text-muted fw-bold">{field.label}</CFormLabel>
-            <CInputGroup className="shadow-sm">
-              <CInputGroupText><CIcon icon={getIcon(field.name)} /></CInputGroupText>
-              
-              {/* Renderizado condicional: Select o Input */}
-              {field.type === 'select' ? (
-                <CFormSelect
-                  name={field.name}
-                  value={formData[field.name] || ''}
-                  onChange={handleChange}
-                  required={field.required}
-                >
-                  <option value="">Seleccionar...</option>
-                  {field.options?.map(opt => (
-                    <option key={opt.value} value={opt.value}>{opt.label}</option>
-                  ))}
-                </CFormSelect>
-              ) : (
-                <CFormInput
-                  type={field.type || 'text'}
-                  name={field.name}
-                  value={formData[field.name] || ''}
-                  onChange={handleChange}
-                  placeholder={field.placeholder}
-                  required={field.required}
-                />
-              )}
-            </CInputGroup>
-          </CCol>
-        ))}
+        {fields
+          .filter(field => !(isEdit && field.hideOnEdit)) // Filtramos si es edicion o Alta, para mostrar o no el campo.
+          .map((field) => (
+            <CCol md={field.fullWidth ? 12 : 6} key={field.name}>
+              <CFormLabel className="small text-muted fw-bold">{field.label}</CFormLabel>
+              <CInputGroup className="shadow-sm">
+                <CInputGroupText><CIcon icon={getIcon(field.name)} /></CInputGroupText>
+
+                {/* Renderizado condicional: Select o Input */}
+                {field.type === 'select' ? (
+                  <CFormSelect    //  Si el campo es de tipo Select
+                    name={field.name}
+                    value={formData[field.name] || ''}
+                    onChange={handleChange}
+                    required={field.required}
+                  >
+                    <option value="">Seleccionar...</option>
+                    {field.options?.map(opt => (
+                      <option key={opt.value} value={opt.value}>{opt.label}</option>
+                    ))}
+                  </CFormSelect>
+                ) : (
+                  <CFormInput //  Si el campo es de tipo Input
+                    type={field.type || 'text'}
+                    name={field.name}
+                    value={formData[field.name] || ''}
+                    onChange={handleChange}
+                    placeholder={field.placeholder}
+                    required={field.required}
+                    readOnly={isEdit && field.readOnlyOnEdit} // Sólo lectura según sea Edit o New
+                    disabled={isEdit && field.readOnlyOnEdit}  // Texto normal, sin tipo campo. No editable.
+                  />
+                )}
+              </CInputGroup>
+            </CCol>
+          ))}
       </CRow>
       <div className="mt-4 d-flex justify-content-end gap-2 border-top pt-3">
         <CButton color="secondary" variant="ghost" onClick={onCancel}>Cancelar</CButton>

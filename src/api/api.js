@@ -80,7 +80,11 @@ export const getNotas = (params = {}) => api.get('/api/notas/', { params });
 
 
 // ==================== PLANILLA DE CALIFICACIONES ====================
-export const getPlanillaCalificaciones = (materiaId, periodoId) => 
-  api.get('/api/notas/planilla', { 
-    params: { materia_id: materiaId, periodo_id: periodoId } 
+export const getPlanillaActa = (cicloId, cursoId, materiaId) => 
+  api.get('/api/notas/planilla-acta', { 
+    params: { 
+        ciclo_id: cicloId, 
+        curso_id: cursoId, 
+        materia_id: materiaId 
+    } 
   });

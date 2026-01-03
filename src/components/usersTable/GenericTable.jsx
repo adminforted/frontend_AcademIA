@@ -5,8 +5,8 @@ import CIcon from '@coreui/icons-react';
 import { cilArrowTop, cilArrowBottom, cilSwapVertical } from '@coreui/icons';
 
 const GenericTable = ({ table }) => {
-  
-    // ========================================
+
+  // ========================================
   // Si table NO está lista → mostramos carga o nada
   // ========================================
   if (!table) {
@@ -59,9 +59,14 @@ const GenericTable = ({ table }) => {
             </CTableRow>
           ) : (
             table.getRowModel().rows.map(row => (
-              <CTableRow key={row.id}>
+              <CTableRow
+                key={row.id} >
                 {row.getVisibleCells().map(cell => (
-                  <CTableDataCell key={cell.id} className="small text-xs">
+                  
+                  <CTableDataCell 
+                  key={cell.id} 
+                  className={`small text-xs ${cell.column.columnDef.meta?.className || ''}`} 
+                  >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </CTableDataCell>
                 ))}

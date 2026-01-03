@@ -15,7 +15,12 @@ export const docenteFields = [
     { name: 'cel', label: 'Celular', type: 'text', required: false },
     { name: 'email', label: 'Correo Electrónico', type: 'email' },
     { name: 'dni', label: 'Documento', type: 'number', required: true, placeholder: 'Ingrese número sin puntos' },
-    { name: 'created_at', label: 'Fecha Alta', type: 'date', required: true, defaultValue: getTodayDate() },
+    {
+        name: 'created_at', label: 'Fecha Alta', type: 'date', required: true,
+        defaultValue: getTodayDate(),   // Fecha actual por defecto
+        hideOnEdit: true,  //  Oculto si la modal es de ecición
+        readOnlyOnEdit: true    //  Sólo lectura si true
+    },
 ];
 
 export const materiaFields = [

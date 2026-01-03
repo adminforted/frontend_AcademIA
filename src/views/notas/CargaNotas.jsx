@@ -1,6 +1,6 @@
 //  frontend_AcademiA\src\views\notas\CargaNotas.jsx
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { CButton, CCard, CCardHeader, CCardBody, CCardFooter, CCol, CRow, CContainer, CFormInput, CFormLabel, } from '@coreui/react'
 
 import GenericTable from '../../components/usersTable/GenericTable.jsx'
@@ -62,7 +62,7 @@ export default function CargaNotaAlumno() {
         data: tableData,
         loading,
         error
-    } = usePlanillaCalificaciones(materiaId, ciclos);
+    } = usePlanillaCalificaciones(selectedCicloId, selectedCursoId, materiaId);
 
     console.log('materiaId:', materiaId);
     console.log('tableData:', tableData);
@@ -99,9 +99,6 @@ export default function CargaNotaAlumno() {
         };
         fetchCiclos();
     }, []);
-
-
-
 
     // ==================== CARGAR LOS CURSOS CADA VEZ QUE selectedCicloId CAMBIA     ====================
     useEffect(() => {
@@ -152,41 +149,69 @@ export default function CargaNotaAlumno() {
 
 
 
-    // ==================== CONFIGURACIÓN ESPECÍFICA DE COLUMNAS PARA CARGA NOTAS ====================
-    const cargaNotasColumnsConfig = [
-        { id: 'index', header: 'Nº', cell: ({ row }) => row.index + 1 },
-
-        {
-            accessorKey: 'apellido_nombre',
-            id: 'alumno',
-            header: 'Alumno/a',
-            cell: ({ row }) => {
-                const a = row.original.alumno;
-                return `${a.apellido.toUpperCase()}, ${a.nombre.toUpperCase()}`;
+    // ==================== CONFIGURACIÓN DINÁMICA DE COLUMNAS PARA CARGA NOTAS ====================
+    const columns = useMemo(() => {
+        // Columnas Base (Nº y Nombre)
+        const baseColumns = [
+            { id: 'index', header: 'Nº', cell: ({ row }) => row.index + 1 },
+            {
+                accessorKey: 'nombre_completo',
+                id: 'alumno',
+                header: 'Alumno/a',
+                cell: ({ getValue }) => getValue()?.toUpperCase(),
             },
-        },
-        { accessorKey: '', header: '1ºT' },
-        { accessorKey: '', header: '2ºT' },
-        { accessorKey: '', header: '3ºT' },
-        { accessorKey: '', header: 'Prom.' },
-        { accessorKey: '', header: 'DIC.' },
-        { accessorKey: '', header: 'FEB.' },
-        { accessorKey: '', header: 'Calif. Def.' },
-        { accessorKey: '', header: 'Observaciones' },
-    ]
+        ];
 
-    // ==================== GENERACIÓN DE COLUMNAS CON FUNCIÓN REUTILIZABLE ====================
 
-    const columns = getTableColumns(
-        cargaNotasColumnsConfig,
-        () => { }, // funciones vacías o null
-        null,
-        { showSelection: false, showActions: false }
-    )
+        // Columnas Dinámicas de Notas (vienen del endpoint)
+        const dynamicNotesColumns = (tableData?.columnas || [])
+            .filter(col => col.id_tipo_nota !== 7) // Excluir Calif. Definitiva
+            .map(col => ({
+                id: `nota_${col.id_tipo_nota}`,
+                header: col.label,
+                accessorKey: `calificaciones.${col.id_tipo_nota}`,
+                cell: ({ row }) => {
+                    // Acceder directamente al valor desde row.original
+                    const val = row.original.calificaciones?.[String(col.id_tipo_nota)];
+
+                    if (val === null || val === undefined || val === "") {
+                        return <span className="text-muted opacity-50">-</span>;
+                    }
+                    return <span className="fw-semibold text-dark">{val}</span>;
+                }
+            }));
+
+
+        // Columnas de Resultados (Promedio y Definitiva)
+        const resultColumns = [
+            {
+                accessorKey: 'promedio',
+                header: 'Prom.',
+                cell: ({ getValue }) => <strong className="text-dark">{getValue() || '-'}</strong>
+            },
+            {
+                accessorKey: 'definitiva',
+                header: 'Calif. Def.',
+                cell: ({ getValue }) => <strong className="text-primary">{getValue() || '-'}</strong>
+            },
+            { accessorKey: 'observaciones', header: 'Observaciones' },
+        ];
+
+        // Unimos todas las piezas
+        const finalConfig = [...baseColumns, ...dynamicNotesColumns, ...resultColumns];
+
+        return getTableColumns(
+            finalConfig,
+
+            () => { },
+            null,
+            { showSelection: false, showActions: false }
+        );
+    }, [tableData?.columnas]); // Solo se recalcula si cambian las columnas del backend
 
     // ---------- Configuración de TanStack Table ----------
     const table = useReactTable({
-        data: tableData || [], // Por seguridad, por si los datos son nulos
+        data: tableData?.filas || [], // tableData es un objeto { columnas: [], filas: [] }
         columns,
         getCoreRowModel: getCoreRowModel(),
         // getPaginationRowModel: getPaginationRowModel(),
@@ -258,6 +283,7 @@ export default function CargaNotaAlumno() {
                             </select>
                         </CCol>
 
+
                         <CCol md={3}>
                             <label className="form-label text-uppercase small fw-semibold text-secondary">Curso</label>
                             {/* Select Dinámico con los datos de la DB */}
@@ -303,7 +329,7 @@ export default function CargaNotaAlumno() {
                                     <option
                                         key={item.id_materia}
                                         value={item.id_materia}>
-                                        {item.nombre_rel.nombre_materia}
+                                        {item.nombre.nombre_materia}
                                     </option>
                                 ))}
                             </select>

@@ -87,22 +87,35 @@ export default function Docentes() {
 
 
   // ---------- Eliminar docentes ----------
-  const handleDelete = async (id) => {
+  const handleDelete = async () => {
+    // Verificamos que haya un docente seleccionado en el estado
+    if (!docenteToDelete) return;
+    // Extraemos el ID del objeto guardado
+    const id = docenteToDelete.id;
+    console.log(`Docente a eliminar: ${docenteToDelete.nombre}`)
     try {
+      // Llamada a la API
       await deleteDocente(id)
       // Actualizar la tabla removiendo el docente eliminado
-      setTableData((prev) => prev.filter((docente) => docente.id !== id))
-      setDeleteModalVisible(false)
+      //setTableData((prev) => prev.filter((docente) => docente.id !== id))
+      setTableData((prev) => prev.filter((doc) => doc.id !== docenteToDelete.id))
+      // Limpiar
       setDocenteToDelete(null)
-      console.log(`Docente con ID ${id} eliminado`)
+      // Indicamos éxito a la modal
+      console.log(`Docente ${docenteToDelete.nombre} eliminado`)
+      return true
     } catch (error) {
       console.error('Error al eliminar docente:', error)
+      // Lanzamos el error para que la modal no pase a fase "éxito"
+      throw error
     }
   }
 
   // ---------- Abrir modal de confirmación de eliminación ----------
-  const confirmDelete = (id) => {
-    setDocenteToDelete(id)
+  const confirmDelete = (docente) => {
+    console.log("Docente capturado para eliminar:", docente)
+
+    setDocenteToDelete(docente)
     setDeleteModalVisible(true)
   }
 
@@ -114,35 +127,54 @@ export default function Docentes() {
 
   // ---------- Guardar docente (crear o actualizar) ----------
   const handleSaveDocente = async (docenteData) => {
+
+    console.log('🟡 handleSaveDocente ejecutado en Docentes.jsx')
+    console.log('📦 docenteData recibida:', docenteData)
+    console.log('🔍 docenteToEdit:', docenteToEdit)
+
     try {
       if (docenteToEdit) {
+        console.log('✏️ Modo: EDITAR docente ID:', docenteToEdit.id)
         // Actualizar docente existente
         const response = await updateDocente(docenteToEdit.id, docenteData)
+
+        // Validamos que la respuesta traiga datos
+        const updatedDocente = response?.data;
+        if (!updatedDocente) throw new Error("La API no devolvió el objeto actualizado");
+
         setTableData((prev) =>
           prev.map((docente) => (docente.id === docenteToEdit.id ? response.data : docente))
         )
+        console.log("Docente actualizado con éxito");
+
       } else {
+        console.log('➕ Modo: CREAR nuevo docente')
         // Crear nuevo docente
         const response = await createDocente(docenteData)
+
+        const newDocente = response?.data;
+        if (!newDocente) throw new Error("La API no devolvió el objeto creado");
+
         setTableData((prev) => [...prev, response.data])
+
+        console.log("Docente creado con éxito");
+
       }
-      setEditModalVisible(false)
-      setDocenteToEdit(null)
+      // Al retornar true, la ModalNewEdit pone showSuccess en true.
+      return true;
+
     } catch (error) {
-      console.error('Error al guardar docente:', error)
-      alert(error.response?.data?.detail || 'Error al guardar docente')
+      console.error('❌ Error al guardar docente:', error)
+      throw error; // Es importante lanzarlo por si se quiere  manejar errores en la modal
     }
   }
-
-
 
   // ==================== CONFIGURACIÓN ESPECÍFICA DE COLUMNAS PARA DOCENTES ====================
 
   const docentesColumnsConfig = [
-    { accessorKey: 'nombre', header: 'Nombre' },
     { accessorKey: 'apellido', header: 'Apellido' },
-    {
-      accessorKey: 'fec_nac',
+    { accessorKey: 'nombre', header: 'Nombre' },
+    {accessorKey: 'fec_nac', 
       header: 'Fecha Nac.',
       cell: (info) => {
         const dateValue = info.getValue()
@@ -153,7 +185,6 @@ export default function Docentes() {
     },
     { accessorKey: 'email', header: 'Email' },
     { accessorKey: 'domicilio', header: 'Domicilio' },
-    { accessorKey: 'telefono', header: 'Teléfono' },
     { accessorKey: 'tel_cel', header: 'Tel/Cel' },
   ]
 
@@ -164,9 +195,6 @@ export default function Docentes() {
     confirmDelete,
     handleClickEditar
   )
-
-
-
 
   // ---------- Configuración de TanStack Table ----------
   const table = useReactTable({
@@ -268,21 +296,22 @@ export default function Docentes() {
           visible={editModalVisible}
           onClose={handleCloseModal}
           title={docenteToEdit ? 'Editar Docente' : 'Nuevo Docente'}
-          // EXPLICACIÓN: Si docenteToEdit es null (nuevo), creamos un objeto con la fecha de hoy
+          // Si docenteToEdit es null (nuevo), creamos un objeto con la fecha de hoy
           initialData={docenteToEdit ? docenteToEdit : { created_at: getTodayDate() }}
           onSave={handleSaveDocente}
-          fields={docenteFields} // <-- Usa la constante importada
+          fields={docenteFields} // <-- Usa la constante de configuración
         />
 
-        {/* Modal de confirmación de eliminación */}
+        {/* Modal de confirmación de eliminación. Se activa al presional el tacho de basura  */}
         <ModalConfirmDel
           visible={deleteModalVisible}
+          docente={docenteToDelete}
+          onConfirm={handleDelete}
           onClose={() => {
             setDeleteModalVisible(false)
             setDocenteToDelete(null)
           }}
-          onConfirm={handleDelete}
-          userId={docenteToDelete}
+
         />
       </CContainer>
     </div >

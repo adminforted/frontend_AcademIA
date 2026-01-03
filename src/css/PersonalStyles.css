@@ -31,6 +31,15 @@
   /* Para scroll horizontal si es necesario en pantallas pequeñas */
 }
 
+/* Forzamos a que las clases de alineación funcionen dentro de las tablas de CoreUI */
+.text-center-important {
+    text-align: center !important;
+}
+
+.text-end-important {
+    text-align: right !important;
+}
+
 
 /* Estilo para print */
 
