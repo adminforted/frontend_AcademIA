@@ -10,6 +10,8 @@ import { useState, useEffect } from 'react';
 const API_BASE_URL = 'http://localhost:8000';
 const API_PREFIX = '/api/estudiantes';
 
+
+
 /**
  * Hook para obtener los datos académicos de un estudiante.
  * Encapsula la lógica de fetch, carga y manejo de errores.
@@ -41,7 +43,7 @@ const useAcademicData = (entityId, year) => {
 
         try {
             // Construye la URL correcta
-            const attendanceUrl = `${API_BASE_URL}${API_PREFIX}/${id}/asistencias?year=${selectedYear}`;
+            const attendanceUrl = `${API_BASE_URL}${API_PREFIX}/inasistencias/${id}/${selectedYear}`;
             console.log(`API Call (id_entidad): ${attendanceUrl}`);
 
             const attendanceResponse = await fetch(attendanceUrl);

@@ -29,7 +29,8 @@ const Login = () => {
 
   // Obtenemos la función del contexto. Se llama login en el useAuth, por eso 
   // la llamamos 'authLogin', para que no choque con la función 'Login' que se importa de la API
-  const { login: authLogin, logout } = useAuth(); 
+  const { login: authLogin } = useAuth(); 
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -44,9 +45,6 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-     // Limpiamos el disco Y el estado de React antes de empezar.
-    logout();
 
     // Limpiar localStorage para evitar datos residuales de sesiones anteriores
     localStorage.removeItem('token');
@@ -70,21 +68,17 @@ const Login = () => {
     try {
       // Llama a la API de login del backend
       console.log('Enviando solicitud a /api/login...');
+      
+      //  Llamada a la API
       const response = await login(loginData);
 
-      // 1. Captura de datos que devuelve la API. El backend devuelve 'user'
+      // Captura de datos. El backend devuelve 'user'
       const { access_token, user } = response.data; // 🌟 CAPTURAMOS el objeto 'user'
 
-      // 2. LLAMADA AL CONTEXTO
-      // Guarda en disco Y actualiza el estado global al mismo tiempo
-      authLogin(user, access_token);
-
-      // 3. Extraer el rol para la redirección (usando los datos frescos)
       // El rol está en la lista user.rol_sistema, y la clave es cod_tipo_usuario.
-      const rolSistema = user.rol_sistema;
+      //  const rolSistema = user.tipo_rol.cod_tipo_usuario; // EXTRAEMOS el valor final del rol
+      const rolSistema = user.rol_sistema; // EXTRAEMOS el valor final del rol
 
-      
-/*
       // Almacena el token en localStorage para mantener la sesión
       localStorage.setItem('token', access_token);
 
@@ -92,11 +86,8 @@ const Login = () => {
       localStorage.setItem('user', JSON.stringify(user));
       console.log('Token guardado:', localStorage.getItem('token'));
       console.log('Usuario guardado:', localStorage.getItem('user'));
-*/
 
       // Lógica de redirección basada en rol_sistema
-      // OBS: actualmente van todos a la misma /home/, pero luego cada rol debe dirigir a una home distinta
-      
       console.log('Login exitoso. Rol:', rolSistema, 'Redirigiendo...');
 
       if (rolSistema === 'ADMIN' || rolSistema === 'ADMIN_SISTEMA') {
@@ -104,7 +95,7 @@ const Login = () => {
       } else if (rolSistema === 'ALUMNO' || rolSistema === 'ALUMNO_APP') {
         navigate('/home');
       } else if (rolSistema === 'DOCENTE'|| rolSistema === 'DOCENTE_APP') {
-        navigate('/home'); 
+        navigate('/home'); // o la ruta que corresponda para docentes
       } else {
         setError('Rol de usuario no reconocido. Contacte a soporte.');
         localStorage.removeItem('token'); // Limpiar token si el rol es inválido

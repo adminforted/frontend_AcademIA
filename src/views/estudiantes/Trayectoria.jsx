@@ -31,7 +31,7 @@ const AcademicDashboard = () => {
     // Obtención de datos del usuario autenticado desde localStorage, usando el Hook useAuthUser().
     const { idEntidad: loggedEntityId, isAdmin, rol } = useAuthUser();
 
-    // 🔍 Líneas de depuración en consola
+    // Depuración en consola
     console.log('=== Datos del usuario autenticado (useAuthUser) ===');
     console.log('Objeto completo devuelto por useAuthUser:', useAuthUser());
 

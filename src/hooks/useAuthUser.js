@@ -1,42 +1,47 @@
 //  src\hooks\useAuthUser.js
 
-//  Hook de Usuario para la obtención del usuario desde localStorage. 
+//  Hook de Usuario para la obtención del usuario desde localStorage.
+//  No lee el localStorage, sinó que "escucha" al AuthContext.js. Es mucho más rápido y siempre está actualizado.
+
 
 import { useMemo } from 'react';
+import { useAuth } from '../../src/context/AuthContext'; // Importamos el contexto 
 
-// Roles definidos para la lógica de visualización (Se mueven aquí o a una constante global)
+// Definimos qué roles se consideran administrativos, para la lógica de visualización, en un solo lugar.
+//   OBS: ver si DOCENTE_APP debe estar como Administrativo.
 const ADMIN_ROLES = ['ADMIN_SISTEMA', 'DOCENTE_APP'];
 
 /**
  * Hook para obtener la información de autenticación del usuario logueado.
+ * Transforma los datos brutos del contexto en información fácil de usar.
  * Usa useMemo para calcular y cachear la información una sola vez.
- * @returns {{ idEntidad: number | null, rol: string | null, isAdmin: boolean }}
  */
 const useAuthUser = () => {
-    return useMemo(() => {
-        try {
-            const userString = localStorage.getItem('user');
-            if (userString) {
-                const user = JSON.parse(userString);
-                
-                // Extrae el rol de forma segura (prioriza cod_tipo_usuario, luego rol_sistema como fallback)
-                const rol = user.tipo_rol?.cod_tipo_usuario || user.rol_sistema || null;
-                
-                const isAdmin = ADMIN_ROLES.includes(rol);
+    // Obtenemos la data centralizada
+    const { sessionData } = useAuth();
 
-                return {
-                    idEntidad: user.id_entidad || null, // Clave para la API
-                    rol: rol,
-                    isAdmin: isAdmin, // Indica si es Docente o Admin
-                };
-            }
-            return { idEntidad: null, rol: null, isAdmin: false };
-        } catch (e) {
-            console.error("Error al parsear el usuario del localStorage", e);
-            // Retorna valores seguros en caso de fallo
-            return { idEntidad: null, rol: null, isAdmin: false };
-        }
-    }, []); // Se ejecuta solo una vez al montar el componente.
-};
+    // useMemo memoriza el resultado. 
+    // Funciona como una memoria que no se re-renderiza cada vez que el componente lo hace.
+    // Solo se vuelve a calcular si sessionData cambia.
+    return useMemo(() => {
+        const { user, role, isAuthenticated } = sessionData;
+
+        // Determinamos si es admin basándonos en la constante de arriba
+        const isAdmin = ADMIN_ROLES.includes(role);
+
+        return {
+            // Datos útiles listos para usar:
+            idEntidad: user?.id_entidad || null, 
+            nombre: user?.nombre || 'Invitado',
+            rol: role,
+            isAdmin: isAdmin,
+            isAuthenticated: isAuthenticated,
+            // Retornamos el objeto user completo por si se necesita otra propiedad
+            userData: user 
+        };
+    // Dependencia: el estado global de auth
+    // useMemo actualiza, si sessionData cambia.
+    }, [sessionData]); 
+}
 
 export default useAuthUser;

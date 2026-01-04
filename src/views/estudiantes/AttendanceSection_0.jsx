@@ -67,7 +67,7 @@ const AttendanceSection = ({ attendanceData, year }) => {
   return (
     <CCard className="card-modern overflow-hidden attendance-summary">
 
-      {/* Tarjeta de Resumen Clickable (UX: Hover y Chevron) */}
+      {/* 1. Tarjeta de Resumen Clickable (UX: Hover y Chevron) */}
       <CCardBody
         className="d-flex justify-content-between align-items-center p-4 cursor-pointer hover:bg-light transition"
         onClick={() => setOpenAttendance(!openAttendance)}
@@ -92,14 +92,11 @@ const AttendanceSection = ({ attendanceData, year }) => {
           </div>
 
           <div className="d-none d-sm-flex flex-column align-items-center">
-            <p className="text-sm font-medium text-muted mb-0">Justificadas</p>
-            <span className={`fs-3 fw-bolder text-success`}>{totalInasistenciaJustif}</span>
+            <p className="text-sm font-medium text-muted mb-0">Sin Justificar</p>
+            <span className={`fs-3 fw-bolder text-danger`}>{totalInasistenciaJustif}</span>
           </div>
 
-          <div className="d-none d-sm-flex flex-column align-items-center">
-            <p className="text-sm font-medium text-muted mb-0">Sin Justificar</p>
-            <span className={`fs-3 fw-bolder text-danger`}>{unjustifiedDays}</span>
-          </div>
+
 
           <CIcon
             icon={cilChevronBottom}
@@ -110,63 +107,42 @@ const AttendanceSection = ({ attendanceData, year }) => {
       </CCardBody>
 
       {/* Detalle de Inasistencias (Collapsable) */}
-      {/* Detalle de Inasistencias (Collapsable) */}
-<CCollapse visible={openAttendance}>
-  <div className="p-4 bg-light border-top border-gray-200">
-    <h3 className="fw-bold text-dark mb-4 text-lg">
-      Detalle de Inasistencias por Fecha ({detailedRecords.length} registros)
-    </h3>
+      <CCollapse visible={openAttendance}>
+        <div className="p-4 bg-light border-top border-gray-200">
+          <h3 className="fw-bold text-dark mb-4 text-lg">Detalle de Inasistencias por Fecha ({detailedRecords.length} registros)</h3>
 
-    <div className="overflow-x-auto">
-      <CTable hover responsive className="bg-white border w-100 m-0">
-        <CTableHead className="bg-light">
-          <CTableRow>
-            {/* Definimos anchos fijos para distribuir el 100% del espacio */}
-            <CTableHeaderCell className="px-4 py-3 text-center text-xs text-muted border-bottom" style={{ width: '20%' }}>
-              Fecha
-            </CTableHeaderCell>
-            <CTableHeaderCell className="px-4 py-3 text-center text-xs text-muted border-bottom" style={{ width: '25%' }}>
-              Tipo Inasistencia
-            </CTableHeaderCell>
-            <CTableHeaderCell className="px-4 py-3 text-center text-xs text-muted border-bottom" style={{ width: '15%' }}>
-              Justificada
-            </CTableHeaderCell>
-            <CTableHeaderCell className="px-4 py-3 text-center text-xs text-muted border-bottom" >
-              Motivo / Detalle
-            </CTableHeaderCell>
-          </CTableRow>
-        </CTableHead>
-        
-        <CTableBody className="text-sm">
-          {detailedRecords.map((record, index) => (
-            <CTableRow key={index} className="align-middle">
-              <CTableDataCell className="px-4 py-3 fw-medium text-dark text-center ">
-                {record.date}
-              </CTableDataCell>
-              <CTableDataCell className="px-4 py-3 text-center">
-                <AbsenceType type={record.type} value={record.value} />
-              </CTableDataCell>
-              <CTableDataCell className="px-4 py-3 text-center">
-                <JustificationBadge isJustified={record.justified} />
-              </CTableDataCell>
-              <CTableDataCell className="px-4 py-3  text-center text-muted d-none d-sm-table-cell">
-                <div className="text-truncate-2" title={record.reason}>
-                  {record.reason || <span className="text-gray-300">—</span>}
-                </div>
-              </CTableDataCell>
-            </CTableRow>
-          ))}
-        </CTableBody>
-      </CTable>
-    </div>
+          <div className="overflow-x-auto">
+            <CTable hover responsive className="bg-white">
+              <CTableHead className="bg-light">
+                <CTableRow>
+                  <CTableHeaderCell className="px-3 py-3 text-left text-xs text-muted">Fecha</CTableHeaderCell>
+                  <CTableHeaderCell className="px-3 py-3 text-left text-xs text-muted">Tipo Inasistencia</CTableHeaderCell>
+                  <CTableHeaderCell className="px-3 py-3 text-center text-xs text-muted">Justificada</CTableHeaderCell>
+                  <CTableHeaderCell className="px-3 py-3 text-left text-xs text-muted d-none d-sm-table-cell">Motivo</CTableHeaderCell>
+                </CTableRow>
+              </CTableHead>
+              <CTableBody className="text-sm">
+                {detailedRecords.map((record, index) => (
+                  <CTableRow key={index}>
+                    <CTableDataCell className="px-3 py-3 fw-medium text-dark">{record.date}</CTableDataCell>
+                    <CTableDataCell className="px-3 py-3">
+                      <AbsenceType type={record.type} value={record.value} />
+                    </CTableDataCell>
+                    <CTableDataCell className="px-3 py-3 text-center">
+                      <JustificationBadge isJustified={record.justified} />
+                    </CTableDataCell>
+                    <CTableDataCell className="px-3 py-3 text-muted d-none d-sm-table-cell">{record.reason}</CTableDataCell>
+                  </CTableRow>
+                ))}
+              </CTableBody>
+            </CTable>
+          </div>
 
-    <hr className="my-4 border-gray-300" />
-
-    <p className="text-xs text-muted fw-medium px-1">
-      Nota: El total de inasistencias acumuladas es de <b>{totalInasistencia.toFixed(1)}</b> días completos (la suma de las fracciones de asistencia).
-    </p>
-  </div>
-</CCollapse>
+          <p className="mt-4 text-xs text-muted fw-medium">
+            Nota: El total de inasistencias acumuladas es de <b>{totalInasistencia.toFixed(1)}</b> días completos (la suma de las fracciones de asistencia).
+          </p>
+        </div>
+      </CCollapse>
     </CCard>
   );
 };
