@@ -32,6 +32,10 @@ export const remove = (id) => api.delete(`${ENDPOINT}/${id}`);
 export const getMateriasPorEstudiante = (estudianteId) => 
     api.get(`${ENDPOINT}/${estudianteId}/materias`);
 
+//  Obtiene los Ciclos Lectivos en los cuales un estudiante cursó alguna materia [getMateriasPorEstudiante]
+export const getCiclosPorEstudiante = (estudianteId) => 
+    api.get(`${ENDPOINT}/${estudianteId}/ciclos`);
+
 // Exportamos todas las funciones CRUD bajo un objeto para ser consumido por useGenericCrud
 const apiEstudiantes = {
     getAll,
@@ -40,6 +44,8 @@ const apiEstudiantes = {
     update,
     remove,
     getMateriasPorEstudiante, // También puedes exportar funciones especiales
+    getCiclosPorEstudiante
 };
 
 export default apiEstudiantes;
+

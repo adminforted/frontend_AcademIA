@@ -32,9 +32,7 @@ export default function CursoInformes() {
 
                     {/* ----------  BODY --------------- */}
                     <CCardBody className="px-4 pt-1 pb-2 border border-light">
-                        
                         BODY
-                    
                     </CCardBody>
                     {/* ----------  /BODY --------------- */}
 
@@ -42,9 +40,7 @@ export default function CursoInformes() {
                     {/* ----------  FOOTER --------------- */}
                     <CCardFooter
                         className="bg-white border-top px-3 py-1" >
-                        
                         FOOTER
-
                     </CCardFooter>
 
                 </CCard>

@@ -28,7 +28,6 @@ export const useStudentsData = () => {
             // Lógica de validación
             const { data } = response
 
-
             // Info de data. Para depuración
             console.log("--- ESTADO DEL HOOK ---")
             console.log("Cargando:", loading)

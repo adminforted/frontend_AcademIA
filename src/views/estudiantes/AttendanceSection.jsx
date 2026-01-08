@@ -75,9 +75,7 @@ const AttendanceSection = ({ attendanceData, year }) => {
 
         {/* Resumen General */}
         <div className="flex-1 min-w-0 pe-4">
-          <p className="text-xl fw-bold text-dark mb-1">
-            Inasistencias (Año {year})
-          </p>
+          <h5 className="fw-bold text-dark mb-1">Inasistencias (Año {year}</h5>
           <p className="text-sm text-muted">
             El detalle se mide en días completos o fracciones.
           </p>
@@ -111,62 +109,62 @@ const AttendanceSection = ({ attendanceData, year }) => {
 
       {/* Detalle de Inasistencias (Collapsable) */}
       {/* Detalle de Inasistencias (Collapsable) */}
-<CCollapse visible={openAttendance}>
-  <div className="p-4 bg-light border-top border-gray-200">
-    <h3 className="fw-bold text-dark mb-4 text-lg">
-      Detalle de Inasistencias por Fecha ({detailedRecords.length} registros)
-    </h3>
+      <CCollapse visible={openAttendance}>
+        <div className="p-4 bg-light border-top border-gray-200">
+          <h3 className="fw-bold text-dark mb-4 text-lg">
+            Detalle de Inasistencias por Fecha ({detailedRecords.length} registros)
+          </h3>
 
-    <div className="overflow-x-auto">
-      <CTable hover responsive className="bg-white border w-100 m-0">
-        <CTableHead className="bg-light">
-          <CTableRow>
-            {/* Definimos anchos fijos para distribuir el 100% del espacio */}
-            <CTableHeaderCell className="px-4 py-3 text-center text-xs text-muted border-bottom" style={{ width: '20%' }}>
-              Fecha
-            </CTableHeaderCell>
-            <CTableHeaderCell className="px-4 py-3 text-center text-xs text-muted border-bottom" style={{ width: '25%' }}>
-              Tipo Inasistencia
-            </CTableHeaderCell>
-            <CTableHeaderCell className="px-4 py-3 text-center text-xs text-muted border-bottom" style={{ width: '15%' }}>
-              Justificada
-            </CTableHeaderCell>
-            <CTableHeaderCell className="px-4 py-3 text-center text-xs text-muted border-bottom" >
-              Motivo / Detalle
-            </CTableHeaderCell>
-          </CTableRow>
-        </CTableHead>
-        
-        <CTableBody className="text-sm">
-          {detailedRecords.map((record, index) => (
-            <CTableRow key={index} className="align-middle">
-              <CTableDataCell className="px-4 py-3 fw-medium text-dark text-center ">
-                {record.date}
-              </CTableDataCell>
-              <CTableDataCell className="px-4 py-3 text-center">
-                <AbsenceType type={record.type} value={record.value} />
-              </CTableDataCell>
-              <CTableDataCell className="px-4 py-3 text-center">
-                <JustificationBadge isJustified={record.justified} />
-              </CTableDataCell>
-              <CTableDataCell className="px-4 py-3  text-center text-muted d-none d-sm-table-cell">
-                <div className="text-truncate-2" title={record.reason}>
-                  {record.reason || <span className="text-gray-300">—</span>}
-                </div>
-              </CTableDataCell>
-            </CTableRow>
-          ))}
-        </CTableBody>
-      </CTable>
-    </div>
+          <div className="overflow-x-auto">
+            <CTable hover responsive className="bg-white border w-100 m-0">
+              <CTableHead className="bg-light">
+                <CTableRow>
+                  {/* Definimos anchos fijos para distribuir el 100% del espacio */}
+                  <CTableHeaderCell className="px-4 py-3 text-center text-xs text-muted border-bottom" style={{ width: '20%' }}>
+                    Fecha
+                  </CTableHeaderCell>
+                  <CTableHeaderCell className="px-4 py-3 text-center text-xs text-muted border-bottom" style={{ width: '25%' }}>
+                    Tipo Inasistencia
+                  </CTableHeaderCell>
+                  <CTableHeaderCell className="px-4 py-3 text-center text-xs text-muted border-bottom" style={{ width: '15%' }}>
+                    Justificada
+                  </CTableHeaderCell>
+                  <CTableHeaderCell className="px-4 py-3 text-center text-xs text-muted border-bottom d-none d-sm-table-cell">
+                    Motivo / Detalle
+                  </CTableHeaderCell>
+                </CTableRow>
+              </CTableHead>
 
-    <hr className="my-4 border-gray-300" />
+              <CTableBody className="text-sm">
+                {detailedRecords.map((record, index) => (
+                  <CTableRow key={index} className="align-middle">
+                    <CTableDataCell className="px-4 py-3 fw-medium text-dark text-center ">
+                      {record.date}
+                    </CTableDataCell>
+                    <CTableDataCell className="px-4 py-3 text-center">
+                      <AbsenceType type={record.type} value={record.value} />
+                    </CTableDataCell>
+                    <CTableDataCell className="px-4 py-3 text-center">
+                      <JustificationBadge isJustified={record.justified} />
+                    </CTableDataCell>
+                    <CTableDataCell className="px-4 py-3  text-center text-muted d-none d-sm-table-cell">
+                      <div className="text-truncate-2" title={record.reason}>
+                        {record.reason || <span className="text-gray-300">—</span>}
+                      </div>
+                    </CTableDataCell>
+                  </CTableRow>
+                ))}
+              </CTableBody>
+            </CTable>
+          </div>
 
-    <p className="text-xs text-muted fw-medium px-1">
-      Nota: El total de inasistencias acumuladas es de <b>{totalInasistencia.toFixed(1)}</b> días completos (la suma de las fracciones de asistencia).
-    </p>
-  </div>
-</CCollapse>
+          <hr className="my-4 border-gray-300" />
+
+          <p className="text-xs text-muted fw-medium px-1">
+            Nota: El total de inasistencias acumuladas es de <b>{totalInasistencia.toFixed(1)}</b> días completos (la suma de las fracciones de asistencia).
+          </p>
+        </div>
+      </CCollapse>
     </CCard>
   );
 };

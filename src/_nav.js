@@ -109,15 +109,17 @@ const fullNavigation = [
 ];
 
 //--------------------------------------------------------------------------------
-// 2. FUNCIÓN DE FILTRADO (MEJORADA: Soporte Multirrol y Limpieza de Grupos)
+// FUNCIÓN DE FILTRADO (MEJORADA: Soporte Multirrol y Limpieza de Grupos)
 // --------------------------------------------------------------------------------
 const filterNavItems = (items, userRoles) => {
+
     // Usamos un Set para búsquedas de roles eficientes (O(1))
     const userRoleSet = new Set(userRoles);
 
     // Primera pasada: Filtrar recursivamente los sub-ítems
     const itemsWithFilteredChildren = items.map(item => {
         if (item.items) {
+
             // Se filtra recursivamente el contenido del grupo
             const filteredItems = filterNavItems(item.items, userRoles);
 
@@ -148,7 +150,7 @@ const filterNavItems = (items, userRoles) => {
 };
 
 // --------------------------------------------------------------------------------
-// 3. FUNCIÓN PRINCIPAL (MEJORADA: Extracción de Todos los Roles)
+// FUNCIÓN PRINCIPAL: Extracción de Todos los Roles
 // --------------------------------------------------------------------------------
 /**
  * Obtiene el menú de navegación filtrado según los roles del usuario logueado.
@@ -168,9 +170,9 @@ const getNavItems = () => {
     console.log('React instance:', React);
 
     
-    // --- LÓGICA DE EXTRACCIÓN ROBUSTA DE ROLES ---
+    // --- LÓGICA DE EXTRACCIÓN DE ROLES ---
 
-    // 1. Prioridad al campo rol_sistema que viene del backend.
+    // Prioridad al campo rol_sistema que viene del backend.
     // Este campo contiene el Rol del Sistema (ADMIN_SISTEMA) que ahora usaremos.
     if (user && user.rol_sistema) {
         // El rol_sistema es un string simple. Lo envolvemos en un array.
@@ -178,7 +180,7 @@ const getNavItems = () => {
         console.log('✅ Estructura ROL_SISTEMA (nuevo) detectada.');
 
     }
-    // 2. **Fallback (Alternativa) / Verificar la estructura actual (OBJETO único)
+    // Fallback (Alternativa) / Verificar la estructura actual (OBJETO único)
     // Mantenemos esto si user.tipos_usuario es la estructura preferida para multirrol.
     else if (user && user.tipos_usuario && Array.isArray(user.tipos_usuario)) {
         userRoles = user.tipos_usuario.map(tipo => tipo.cod_tipo_usuario);

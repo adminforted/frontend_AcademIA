@@ -1,32 +1,23 @@
+//  frontend_AcademiA\src\components\AppHeader.js
+
 import React, { useEffect, useRef } from 'react'
 import { NavLink } from 'react-router-dom'
 import { useSelector, useDispatch } from 'react-redux'
 import {
-  CContainer,
-  CDropdown,
-  CDropdownItem,
-  CDropdownMenu,
-  CDropdownToggle,
-  CHeader,
-  CHeaderNav,
-  CHeaderToggler,
-  CNavLink,
-  CNavItem,
-  useColorModes,
+  CContainer, CDropdown, CDropdownItem, CDropdownMenu, CDropdownToggle, CHeader, CHeaderNav, CHeaderToggler,
+  CNavLink, CNavItem, useColorModes,
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
-import {
-  cilBell,
-  cilContrast,
-  cilEnvelopeOpen,
-  cilList,
-  cilMenu,
-  cilMoon,
-  cilSun,
-} from '@coreui/icons'
+import { cilBell, cilContrast, cilEnvelopeOpen, cilList, cilMenu, cilMoon, cilSun } from '@coreui/icons'
 
 import { AppBreadcrumb } from './index'
 import { AppHeaderDropdown } from './header/index'
+
+// Importo el hook para acceder a los datos de la sesión almacenados en AuthProvider
+import { useAuth } from '../context/AuthContext';
+
+import useUsuario from '../hooks/useUsuario'
+
 
 const AppHeader = () => {
   const headerRef = useRef()
@@ -34,6 +25,15 @@ const AppHeader = () => {
 
   const dispatch = useDispatch()
   const sidebarShow = useSelector((state) => state.sidebarShow)
+
+  // Extraemos los datos del usuario logueado, la sesión (sessionData), mediante el hook useAuth
+  const { sessionData } = useAuth();
+  // De sessionData, extraemos id_entidad (solo si sessionData existe)
+  const idEntidad = sessionData?.user?.id_entidad;
+  // Le pasamos el idEntidad al hook useUsuario, para obtener el nombre de entidad del usuario logueado
+  const nombreUsuario = useUsuario(idEntidad);
+  console.log("Contenido de nombreUsuario: ", nombreUsuario);
+
 
   useEffect(() => {
     document.addEventListener('scroll', () => {
@@ -45,25 +45,29 @@ const AppHeader = () => {
   return (
     <CHeader position="sticky" className="mb-2 p-0" ref={headerRef}>
       <CContainer className="border-bottom px-4" fluid>
+
         <CHeaderToggler
           onClick={() => dispatch({ type: 'set', sidebarShow: !sidebarShow })}
           style={{ marginInlineStart: '-14px' }}
         >
           <CIcon icon={cilMenu} size="lg" />
         </CHeaderToggler>
+        {/*
         <CHeaderNav className="d-none d-md-flex">
-          
           <CNavItem>
             <CNavLink to="/dashboard" as={NavLink}>
               Dashboard
             </CNavLink>
           </CNavItem>
-          
           <CNavItem>
-            <CNavLink href="#">Usuarios</CNavLink>
+            <CNavLink href="#">
+              Usuarios
+            </CNavLink>
           </CNavItem>
-        
         </CHeaderNav>
+*/}
+
+        {/* 
         <CHeaderNav className="ms-auto">
           <CNavItem>
             <CNavLink href="#">
@@ -81,10 +85,30 @@ const AppHeader = () => {
             </CNavLink>
           </CNavItem>
         </CHeaderNav>
+*/}
+
+
         <CHeaderNav>
+
+          <div className="px-4 pt-1 pb-2 ">
+            {nombreUsuario ? (
+              <>
+                <span>
+                  {nombreUsuario.nombre_completo}
+                </span>
+                <div className="small text-body-secondary text-capitalize" style={{ textTransform: 'capitalize' }}>
+                  {nombreUsuario.tipo_entidad_rel?.tipo_entidad.toLowerCase()}
+                </div>
+              </>
+            ) : (
+              <span>Cargando usuario...</span>
+            )}
+          </div>
+
           <li className="nav-item py-1">
             <div className="vr h-100 mx-2 text-body text-opacity-75"></div>
           </li>
+          {/* 
           <CDropdown variant="nav-item" placement="bottom-end">
             <CDropdownToggle caret={false}>
               {colorMode === 'dark' ? (
@@ -125,19 +149,23 @@ const AppHeader = () => {
               </CDropdownItem>
             </CDropdownMenu>
           </CDropdown>
+           
           <li className="nav-item py-1">
             <div className="vr h-100 mx-2 text-body text-opacity-75"></div>
           </li>
+        */}
+
           <AppHeaderDropdown />
         </CHeaderNav>
       </CContainer>
-      
+
       {/* Se deshabilita el CContainer del Breacrumb
       <CContainer className="px-4" fluid> 
         <AppBreadcrumb />
       </CContainer>
-      */}
-    
+       */}
+
+
     </CHeader>
   )
 }

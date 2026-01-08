@@ -12,14 +12,8 @@ import AttendanceSection from './AttendanceSection'; // <-- Cmponente de asisten
 import SubjectCard from '../../components/subjectCard/SubjectCard'; // Componente de Fila materias
 import StatCard from '../../components/statCard/StatCard'; // Componente de Tarjeta Estadística
 
-import GradesSection from '../../components/gradesSection/GradesSection';
-
-
 import { getMateriasPorEstudiante } from '../../api/apiEstudiantes';  // 
 //import { CSpinner, CAlert } from '@coreui/react';
-
-//  Componente que trae los ciclos lectivos en los cuales el alumno cursó alguna materia
-import SelectorCicloLectivo from '../../components/SelectorCicloLectivo/SelectorCicloLectivo'
 
 // Hooks Modulares
 import useAuthUser from '../../hooks/useAuthUser'; // <-- Hook de Usuario
@@ -39,14 +33,10 @@ const AcademicDashboard = () => {
     // Depuración en consola
     console.log('=== Datos del usuario autenticado (useAuthUser) ===');
     console.log('Objeto completo devuelto por useAuthUser:', useAuthUser());
-    console.log('id_entidad del usuario logueado: ', useAuthUser().idEntidad);
-
-    const id_usuario_logueado = useAuthUser().idEntidad;
 
 
     // ESTADOS LOCALES DE LA INTERFAZ
     const [year, setYear] = useState('2025');
-
     const [openSubject, setOpenSubject] = useState(null);
     // Estados para búsqueda (solo admins/docentes)
     const [inputEntityId, setInputEntityId] = useState('');
@@ -54,11 +44,6 @@ const AcademicDashboard = () => {
     // Determinar el Rol del usuario 
     const esAlumno = rol === 'ALUMNO_APP';
     const esDocenteOAdmin = rol === 'ADMIN_SISTEMA' || rol === 'DOCENTE_APP';
-
-    // Estados para ciclo lectivo seleccionado
-    const [ciclo, setCiclo] = useState(null);
-
-
 
 
     // Inicializamos currentEntityId según el rol
@@ -74,7 +59,7 @@ const AcademicDashboard = () => {
 
     // Usamos el hook   para obtener los datos de la base
     //   * currentEntityId: ID del estudiante a buscar
-    //   * ciclo: Ciclo lectivo de datos a buscar
+    //   * year: Año de datos a buscar
     //   * inasistenciaDData: guarda los datos del estudiante (asistencia, promedios, materias, etc)
     //   * loading: booleano para indicar si se están cargando los datos
     //   * error: mensaje de error si API falla o null si está todo OK.
@@ -82,7 +67,6 @@ const AcademicDashboard = () => {
     const { inasistenciaData, loading, error, refetch } = useInasistenciaData(currentEntityId, year);
 
     //  -----   HANDLERS DE INTERFAZ    -----
-
     // Handler para el input text (solo para docentes/admins)
     const handleStudentIdChange = (e) => setInputEntityId(e.target.value);
 
@@ -95,14 +79,11 @@ const AcademicDashboard = () => {
         }
     };
 
-    // Handler para el cambio de Ciclo (ver si no es el mismo que el de abajo)
-    const handleCicloChange = (c) => {
-        setCiclo(c.nombre_ciclo_lectivo);
-        console.log("El usuario eligió:", ciclo);
-
+    // Handler para el cambio de año (usa currentEntityId)
+    const handleYearChange = (e) => {
+        setYear(e.target.value);
         setOpenSubject(null);   // El useEffect se encargará de disparar la API.
-    }
-
+    };
 
     // Lógica para alternar la apertura/cierre de la tarjeta de materia
     const toggleSubject = (id) => setOpenSubject(openSubject === id ? null : id);
@@ -126,7 +107,7 @@ const AcademicDashboard = () => {
                     {/* Contenedor Principal: APILA los elementos (Alumno y Año) y los ALINEA a la derecha */}
                     <div className="mt-3 mt-md-0 d-flex flex-column align-items-end">
 
-                        {/*Bloque de Búsqueda de Alumno (Fila horizontal, visible solo para Admin/Docente) */}
+                        {/* 1. Bloque de Búsqueda de Alumno (Fila horizontal, visible solo para Admin/Docente) */}
                         {esDocenteOAdmin && (
                             <div className="d-flex align-items-center bg-white p-1 rounded-4 shadow-sm mb-2">
                                 <label className="fw-bold text-muted small me-2 px-2">ID Alumno:</label>
@@ -149,25 +130,20 @@ const AcademicDashboard = () => {
                             </div>
                         )}
 
-                        {/* Selector de Año , con Renderizado condiconal*/}
-
+                        {/* Selector de Año (Siempre visible) */}
                         <div className="d-flex align-items-center bg-white p-2 rounded-4 shadow-sm">
                             <label className="fw-bold text-muted small me-2 px-2">Año:</label>
-
-                            <SelectorCicloLectivo
-                                id_entidad={currentEntityId || id_usuario_logueado }
-                                onCicloChange={handleCicloChange}
-                                variant={'EstiloForm'}
-                            />
-                            {ciclo ? (
-                                <p>{ciclo.id_ciclo_lectivo}</p>
-                            ) : (
-                                <p></p>
-                            )}
-
+                            <select
+                                value={year}
+                                onChange={handleYearChange}
+                                className="form-select border-0 bg-light fw-bold text-primary py-2 ps-3 pe-5 rounded-pill"
+                                style={{ cursor: 'pointer', outline: 'none', boxShadow: 'none' }}
+                            >
+                                <option value="2025">2025 (Actual)</option>
+                                <option value="2024">2024</option>
+                                <option value="2023">2023</option>
+                            </select>
                         </div>
-
-
                     </div>
                 </div>
 
@@ -191,7 +167,7 @@ const AcademicDashboard = () => {
                         </div>
                         <h3 className="text-dark fw-bold">Búsqueda de Expediente</h3>
                         <p className="text-muted">
-                            Por favor, ingrese el ID del estudiante para visualizar su historial académico en el ciclo <strong>{ciclo} </strong>.
+                            Por favor, ingrese el ID del estudiante para visualizar su historial académico en el año <strong>{year} </strong>.
                         </p>
                     </div>
                 ) : inasistenciaData ? (
@@ -232,31 +208,37 @@ const AcademicDashboard = () => {
                             </CCol>
                         </CRow>
 
-                        <CRow>
-                            {/* Listado de Materias */}
-                            <div className="mt-0 d-flex align-items-center justify-content-between">
-                                <h4 className="fw-bold text-dark m-0 mb-0" >Materias & Calificaciones</h4>
-                                <span className="badge bg-white text-dark border shadow-sm rounded-pill">
-                                    {inasistenciaData.subjects.length} Cursadas
-                                </span>
-                            </div>
+                        {/* Listado de Materias */}
+                        <div className="mb-4 d-flex align-items-center justify-content-between">
+                            <h4 className="fw-bold text-dark m-0">Materias & Calificaciones</h4>
+                            <span className="badge bg-white text-dark border shadow-sm rounded-pill">
+                                {inasistenciaData.subjects.length} Cursadas
+                            </span>
+                        </div>
 
-                            <div>
-                                {/* Llamada al componente de visuaización de notas */}
-                                <GradesSection year={ciclo} />
-                            </div>
+                        <div>
+                            {inasistenciaData.subjects.length > 0 ? (
+                                inasistenciaData.subjects.map((sub) => (
+                                    <SubjectCard
+                                        key={sub.id}
+                                        subject={sub}
+                                        isOpen={openSubject === sub.id}
+                                        onToggle={() => toggleSubject(sub.id)} // COMENTARIO: Se usa el handler local toggleSubject
+                                    />
+                                ))
+                            ) : (
+                                <p className="text-muted fst-italic p-3 bg-white border rounded">No hay materias registradas para este periodo.</p>
+                            )}
+                        </div>
 
-                            {/* Sección de Asistencia (Extendida del mockup original) */}
-                            <div className="mt-5">
-                                <h4 className="fw-bold text-dark m-0 mb-3">Registro de Asistencias</h4>
-                                <AttendanceSection
-                                    attendanceData={inasistenciaData.attendance}
-                                    year={ciclo}
-                                />
-                            </div>
-                        </CRow>
-
-
+                        {/* Sección de Asistencia (Extendida del mockup original) */}
+                        <div className="mt-5">
+                            <h4 className="fw-bold text-dark m-0 mb-3">Registro de Asistencias</h4>
+                            <AttendanceSection
+                                attendanceData={inasistenciaData.attendance}
+                                year={year}
+                            />
+                        </div>
 
                     </div>
                 ) : (
@@ -264,7 +246,7 @@ const AcademicDashboard = () => {
                         <div className="bg-white p-5 rounded-circle shadow-sm d-inline-block mb-3">
                             <CIcon icon={cilSchool} size="4xl" className="text-muted" />
                         </div>
-                        <h3 className="text-dark fw-bold">Sin registros para {ciclo}</h3>
+                        <h3 className="text-dark fw-bold">Sin registros para {year}</h3>
                         <p className="text-muted">No se encontraron inscripciones activas en este periodo.</p>
                     </div>
                 )}

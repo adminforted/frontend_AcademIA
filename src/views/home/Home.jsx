@@ -10,28 +10,23 @@ export default function Home() {
     return (
         <CContainer>
             <CCard className="mb-1">
-                {/* ---------- ENCABEZADO ---------- */}
+
+                {/* ---------- HEADER ---------- */}
                 <CCardHeader className="py-2 bg-white">
                     <CRow className="justify-content-between align-items-center">
-
                         <CCol xs={12} sm="auto">
-
                             <h4 id="titulo" className="mb-0">
                                 Home
                             </h4>
-
                             <div className="small text-body-secondary">
                                 Panel inicial
+
                             </div>
-
-
                         </CCol>
-
-
                     </CRow>
-
                 </CCardHeader>
 
+                 {/* ---------- BODY ---------- */}
                 <CCardBody className="p-0">
                     <CRow className="justify-content-between align-items-center px-4 pt-1 pb-2  border-light">
                         <Dashboard />
@@ -42,6 +37,7 @@ export default function Home() {
                     </CRow>
                 </CCardBody>
 
+                 {/* ---------- FOOTER ---------- */}
                 <CCardFooter>
                     Footer
                 </CCardFooter>

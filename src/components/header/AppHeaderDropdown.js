@@ -1,3 +1,5 @@
+//  C:\AcademIA\frontend_AcademiA\src\components\header\AppHeaderDropdown.js
+
 import React from 'react'
 import {
   CAvatar,
@@ -42,9 +44,9 @@ const AppHeaderDropdown = () => {
         </CDropdownItem>
         <CDropdownItem href="#">
           <CIcon icon={cilEnvelopeOpen} className="me-2" />
-          Messages
+          Messagess
           <CBadge color="success" className="ms-2">
-            42
+            43
           </CBadge>
         </CDropdownItem>
         <CDropdownItem href="#">

@@ -12,7 +12,7 @@ import {
     cilCheckCircle,
     cilWarning,
     cilChevronBottom
-} from '@coreui/icons';
+} from '@coreui/icons'; 
 
 import SubjectEvaluationHistory from '../subjectEvaluationHistory/SubjectEvaluationHistory'
 const SubjectCard = ({ subject, isOpen, onToggle }) => {

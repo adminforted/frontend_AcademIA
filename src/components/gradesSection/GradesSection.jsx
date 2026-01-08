@@ -1,0 +1,83 @@
+// src/views/estudiantes/GradesSection.jsx
+
+// Recibe el año de Trayectoria.jsx, busca los datos fijos y mapea los SubjectCard.
+
+import React, { useState } from 'react';
+import SubjectCard from '../../components/subjectCard/SubjectCard';
+
+const GradesSection = ({ year }) => {
+    
+    // Estado para controlar qué materia está expandida (solo una a la vez)
+    const [openSubjectId, setOpenSubjectId] = useState(null);
+
+    const handleToggle = (id) => {
+        setOpenSubjectId(openSubjectId === id ? null : id);
+    };
+
+    // DATOS FIJOS (Mocks adaptados a tus componentes)
+    const subjectsData = {
+        '2025': [
+            {
+                id: 1,
+                name: 'Cálculo Diferencial',
+                professor: 'Dra. Elena Castro',
+                grade: 9.5,
+                status: 'aprobado',
+                details: [
+                    { 
+                        name: '1ER TRIMESTRE', 
+                        grade: 9.0, 
+                        status: 'Aprobado',
+                        evaluacion: [
+                            { nomeval: 'Parcial 1', notaeval: 9.5 },
+                            { nomeval: 'Trabajo Práctico', notaeval: 8.5 }
+                        ]
+                    },
+                    { name: '2DO TRIMESTRE', grade: 10.0, status: 'Aprobado' },
+                    { name: 'EXAMEN FINAL', grade: 9.5, status: 'Aprobado' }
+                ]
+            },
+            {
+                id: 2,
+                name: 'Programación Avanzada',
+                professor: 'Ing. Ricardo Gómez',
+                grade: 5.8,
+                status: 'reprobado',
+                details: [
+                    { 
+                        name: '1ER TRIMESTRE', 
+                        grade: 5.5, 
+                        status: 'Desaprobado',
+                        evaluacion: [
+                            { nomeval: 'Evaluación Técnica', notaeval: 4.0 },
+                            { nomeval: 'Laboratorio', notaeval: 7.0 }
+                        ]
+                    },
+                    { name: '2DO TRIMESTRE', grade: 6.1, status: 'Aprobado' }
+                ]
+            }
+        ]
+    };
+
+    const currentSubjects = subjectsData[year] || [];
+    return (
+        <div className="grades-container mt-4">
+            {currentSubjects.length > 0 ? (
+                currentSubjects.map((subject) => (
+                    <SubjectCard
+                        key={subject.id}
+                        subject={subject}
+                        isOpen={openSubjectId === subject.id}
+                        onToggle={() => handleToggle(subject.id)}
+                    />
+                ))
+            ) : (
+                <div className="text-center py-5 bg-white rounded-3 border">
+                    <p className="text-muted mb-0">No hay calificaciones disponibles para el año {year}.</p>
+                </div>
+            )}
+        </div>
+    );
+};
+
+export default GradesSection;

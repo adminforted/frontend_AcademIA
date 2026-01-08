@@ -10,6 +10,7 @@
             *   Utiliza la prop isPassing (aprobación general de la materia) para renderizar la alerta de riesgo en la parte inferior de la sección.
 */
 
+
 import React, { useState } from 'react';
 import { CCollapse, CRow, CCol } from '@coreui/react';
 import CIcon from '@coreui/icons-react';

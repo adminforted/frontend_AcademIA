@@ -1,36 +1,26 @@
-//  src\hooks\useAcademicData.js
-
-//  Hook de Datos
-//  Se encarga de toda la lógica de la llamada a la API (fetchAcademicData) y de gestionar los estados de loading, error y academicData. 
-//  Desacopla completamente el flujo de datos del componente de presentación.
+//  src\hooks\useInasistenciaData.js
 
 import { useState, useEffect } from 'react';
 
-// --- CONSTANTES ---
-const API_BASE_URL = 'http://localhost:8000';
-const API_PREFIX = '/api/estudiantes';
+// Importamos la función específica
+import { getInasisteniasPorEstudiante } from '../api/ApiInasistencia/apiInasistencia';
 
+//  Hook para obtener los datos académicos de un estudiante.
+// Encapsula la lógica de fetch, carga y manejo de errores.
 
-
-/**
- * Hook para obtener los datos académicos de un estudiante.
- * Encapsula la lógica de fetch, carga y manejo de errores.
- * * @param {number | string | null} entityId - ID de la entidad (estudiante) a consultar.
- * @param {string} year - Año académico seleccionado.
- * @returns {{ academicData: object | null, loading: boolean, error: string | null, refetch: () => void }}
- */
-const useAcademicData = (entityId, year) => {
-    const [academicData, setAcademicData] = useState(null);
+const useInasistenciaData = (entityId, year) => {
+    const [inasistenciaData, setInasistenciaData] = useState(null);
     const [loading, setLoading] = useState(false); // Por defecto en false, se activa en useEffect
     const [error, setError] = useState(null);
-    const [fetchTrigger, setFetchTrigger] = useState(0); // Para forzar un re-fetch si es necesario
+    const [fetchTrigger, setFetchTrigger] = useState(0);
+
 
     // FUNCIÓN CENTRAL: hace la llamada a la API y maneja la respuesta
     const fetchData = async (id, selectedYear) => {
         // Si el ID es null o vacío, y estamos en modo "esperando búsqueda"
         // NO lanzamos error, simplemente limpiamos todo y salimos.
         if (id === null || id === '' || id === undefined) {
-            setAcademicData(null);
+            setInasistenciaData(null);
             setError(null);        // ← No mostramos error
             setLoading(false);
             return;
@@ -39,21 +29,10 @@ const useAcademicData = (entityId, year) => {
         // Si llegamos acá, es que hay un ID válido → intentamos cargar
         setLoading(true); // Inicia el spinner
         setError(null);
-        setAcademicData(null);
 
         try {
-            // Construye la URL correcta
-            const attendanceUrl = `${API_BASE_URL}${API_PREFIX}/inasistencias/${id}/${selectedYear}`;
-            console.log(`API Call (id_entidad): ${attendanceUrl}`);
-
-            const attendanceResponse = await fetch(attendanceUrl);
-
-            if (!attendanceResponse.ok) {
-                // Manejo de errores HTTP
-                throw new Error(`Error ${attendanceResponse.status}: ${attendanceResponse.statusText}`);
-            }
-
-            const attendanceAPI = await attendanceResponse.json();
+            const response = await getInasisteniasPorEstudiante(entityId, year);
+            const attendanceAPI = response.data;
 
             // --------------------------------------------------------------------------
             // 🔑 NOTA: Mocks temporales. En producción, aquí harías otras llamadas 
@@ -74,19 +53,18 @@ const useAcademicData = (entityId, year) => {
             const tempSubjects = [];
 
             // Almacena los datos en el estado
-            setAcademicData({
+            setInasistenciaData({
                 summary: tempSummary,
                 subjects: tempSubjects,
                 attendance: attendanceAPI, // <-- Datos reales de la API
             });
 
         } catch (err) {
-            console.error("Error al cargar datos académicos:", err);
-             // 🔑 Se muestra error real (problema de red, 404, etc.)
-            setError(`Fallo al cargar datos: ${err.message}.`);
-            setAcademicData(null);
+            console.error("Error al cargar datos:", err);
+            // Axios captura el error del backend automáticamente
+            setError(err.response?.data?.detail || "Error al conectar con el servidor");
         } finally {
-            setLoading(false); // Finaliza el spinner
+            setLoading(false);
         }
     };
 
@@ -98,8 +76,7 @@ const useAcademicData = (entityId, year) => {
     // Función de re-fetch para usar en el botón de búsqueda
     const refetch = () => setFetchTrigger(prev => prev + 1);
 
-    return { academicData, loading, error, refetch };
+    return { inasistenciaData, loading, error, refetch };
 };
 
-export default useAcademicData;
-
+export default useInasistenciaData;
