@@ -14,6 +14,8 @@ import StatCard from '../../components/statCard/StatCard'; // Componente de Tarj
 
 import GradesSection from '../../components/gradesSection/GradesSection';
 
+import StatsCardsOverview from '../statsCards/StatsCardsOverview'
+
 
 import { getMateriasPorEstudiante } from '../../api/apiEstudiantes';  // 
 //import { CSpinner, CAlert } from '@coreui/react';
@@ -55,8 +57,9 @@ const AcademicDashboard = () => {
     const esAlumno = rol === 'ALUMNO_APP';
     const esDocenteOAdmin = rol === 'ADMIN_SISTEMA' || rol === 'DOCENTE_APP';
 
-    // Estados para ciclo lectivo seleccionado
+    // Estados para el ciclo lectivo seleccionado
     const [ciclo, setCiclo] = useState(null);
+    const [cicloId, setCicloId] = useState(null);
 
 
 
@@ -80,6 +83,7 @@ const AcademicDashboard = () => {
     //   * error: mensaje de error si API falla o null si está todo OK.
     //    *refectch: llama la función de forma manual, cuando por ejemplo, se presiona el botón "Buscar"
     const { inasistenciaData, loading, error, refetch } = useInasistenciaData(currentEntityId, year);
+    console.log("📡 Par{ametros para obtener datos de inasistencia: ", { currentEntityId, year })
 
     //  -----   HANDLERS DE INTERFAZ    -----
 
@@ -95,12 +99,22 @@ const AcademicDashboard = () => {
         }
     };
 
-    // Handler para el cambio de Ciclo (ver si no es el mismo que el de abajo)
+    // Handler para el cambio de Ciclo 
     const handleCicloChange = (c) => {
-        setCiclo(c.nombre_ciclo_lectivo);
-        console.log("El usuario eligió:", ciclo);
+        // Evitamos que el código siga ejecutándose si no hay datos.
+        if (!c) return;
 
-        setOpenSubject(null);   // El useEffect se encargará de disparar la API.
+        setCiclo(c.nombre_ciclo_lectivo);
+        setCicloId(c.id_ciclo_lectivo);
+
+        setOpenSubject(null);   // Se pone para "limpiar" la interfaz.
+
+        console.log("🔄 Cambio de ciclo detectado:");
+        console.log("ID capturado para el backend:", c.id_ciclo_lectivo);
+        console.log("Nombre para la interfaz:", c.nombre_ciclo_lectivo);
+
+
+
     }
 
 
@@ -123,10 +137,10 @@ const AcademicDashboard = () => {
                         <p className="text-muted mb-0">Visualización de calificaciones, asistencias y evaluaciones</p>
                     </div>
 
-                    {/* Contenedor Principal: APILA los elementos (Alumno y Año) y los ALINEA a la derecha */}
+                    {/* Contenedor de busquedas */}
                     <div className="mt-3 mt-md-0 d-flex flex-column align-items-end">
 
-                        {/*Bloque de Búsqueda de Alumno (Fila horizontal, visible solo para Admin/Docente) */}
+                        {/*Bloque de Búsqueda de Alumno (visible solo para Admin/Docente) */}
                         {esDocenteOAdmin && (
                             <div className="d-flex align-items-center bg-white p-1 rounded-4 shadow-sm mb-2">
                                 <label className="fw-bold text-muted small me-2 px-2">ID Alumno:</label>
@@ -150,115 +164,62 @@ const AcademicDashboard = () => {
                         )}
 
                         {/* Selector de Año , con Renderizado condiconal*/}
-
                         <div className="d-flex align-items-center bg-white p-2 rounded-4 shadow-sm">
                             <label className="fw-bold text-muted small me-2 px-2">Año:</label>
 
                             <SelectorCicloLectivo
-                                id_entidad={currentEntityId || id_usuario_logueado }
+                                id_entidad={currentEntityId || id_usuario_logueado}
                                 onCicloChange={handleCicloChange}
                                 variant={'EstiloForm'}
                             />
                             {ciclo ? (
-                                <p>{ciclo.id_ciclo_lectivo}</p>
+                                <p> {ciclo.id_ciclo_lectivo}</p>
                             ) : (
                                 <p></p>
                             )}
 
                         </div>
-
-
                     </div>
                 </div>
 
-                {/* Estados de la carga */}
-                {loading ? (
-                    <div className="text-center py-5 fade-in">
-                        <CSpinner color="primary" variant="grow" />
-                        <p className="text-muted mt-3 animate-pulse">Sincronizando registros...</p>
-                    </div>
-                ) : error ? (
-                    // Bloque de Error HTTP o Auth (Alumnos sin ID válido) 
-                    <div className="text-center py-5">
-                        <h3 className="text-danger fw-bold">⚠️ Error de Carga</h3>
-                        <p className="text-muted">{error}</p>
-                    </div>
-                ) : isAwaitingSearch ? (
-                    // Mensaje para Admin/Docente cuando aún no hay ID ingresado
-                    <div className="text-center py-5">
-                        <div className="bg-white p-5 rounded-circle shadow-sm d-inline-block mb-3 border border-primary">
-                            <CIcon icon={cilSearch} size="4xl" className="text-primary" />
+                <div className="fade-in-up">
+
+                    {/* ------------ KPIs / Métricas - Uso de statCards ------------  */}
+                    <CRow className="g-4 mb-5 ">
+                        <StatsCardsOverview />
+                    </CRow>
+
+                    <CRow>
+                        {/* Listado de Materias */}
+                        <div className="mt-0 d-flex align-items-center justify-content-between">
+                            <h4 className="fw-bold text-dark m-0 mb-0" >Materias & Calificaciones</h4>
+                            <span className="badge bg-white text-dark border shadow-sm rounded-pill">
+                                {inasistenciaData?.subjects?.length} Cursadas
+                            </span>
                         </div>
-                        <h3 className="text-dark fw-bold">Búsqueda de Expediente</h3>
-                        <p className="text-muted">
-                            Por favor, ingrese el ID del estudiante para visualizar su historial académico en el ciclo <strong>{ciclo} </strong>.
-                        </p>
-                    </div>
-                ) : inasistenciaData ? (
-                    //  Bloque de contenido
-                    <div className="fade-in-up">
-                        {/* KPIs / Métricas  - Uso de statCards */}
-                        <CRow className="g-4 mb-5">
-                            <CCol sm={6} lg={3}>
-                                <StatCard
-                                    title="Promedio General"
-                                    value={inasistenciaData.summary.average}
-                                    icon={cilChartLine}
-                                    color="primary"
-                                    subtext="Escala de 1 a 10"
-                                />
-                            </CCol>
-                            <CCol sm={6} lg={3}>
-                                <StatCard
-                                    title="Materias Aprobadas" value={inasistenciaData.summary.approved}
-                                    icon={cilCheckCircle} color="success"
-                                />
-                            </CCol>
-                            <CCol sm={6} lg={3}>
-                                <StatCard
-                                    title="Asistencia Global"
-                                    value={inasistenciaData.summary.attendance}
-                                    icon={cilCalendar}
-                                    color="info"
-                                />
-                            </CCol>
-                            <CCol sm={6} lg={3}>
-                                <StatCard
-                                    title="Requieren Atención"
-                                    value={inasistenciaData.summary.failed}
-                                    icon={cilWarning}
-                                    color="danger"
-                                />
-                            </CCol>
-                        </CRow>
 
-                        <CRow>
-                            {/* Listado de Materias */}
-                            <div className="mt-0 d-flex align-items-center justify-content-between">
-                                <h4 className="fw-bold text-dark m-0 mb-0" >Materias & Calificaciones</h4>
-                                <span className="badge bg-white text-dark border shadow-sm rounded-pill">
-                                    {inasistenciaData.subjects.length} Cursadas
-                                </span>
-                            </div>
+                        <div>
+                            {/* Llamada al componente de visuaización de notas */}
+                            <GradesSection
+                                id_alumno='1'
+                                year={cicloId} />
+                        </div>
 
-                            <div>
-                                {/* Llamada al componente de visuaización de notas */}
-                                <GradesSection year={ciclo} />
-                            </div>
-
-                            {/* Sección de Asistencia (Extendida del mockup original) */}
-                            <div className="mt-5">
-                                <h4 className="fw-bold text-dark m-0 mb-3">Registro de Asistencias</h4>
-                                <AttendanceSection
-                                    attendanceData={inasistenciaData.attendance}
-                                    year={ciclo}
-                                />
-                            </div>
-                        </CRow>
+                        {/* Sección de Asistencia (Extendida del mockup original) */}
+                        <div className="mt-5">
+                            <h4 className="fw-bold text-dark m-0 mb-3">Registro de Asistencias</h4>
+                            <AttendanceSection
+                                attendanceData={inasistenciaData?.attendance}
+                                year={ciclo}
+                            />
+                        </div>
+                    </CRow>
 
 
 
-                    </div>
+                </div>
+
+                {/* 
                 ) : (
                     <div className="text-center py-5">
                         <div className="bg-white p-5 rounded-circle shadow-sm d-inline-block mb-3">
@@ -268,6 +229,7 @@ const AcademicDashboard = () => {
                         <p className="text-muted">No se encontraron inscripciones activas en este periodo.</p>
                     </div>
                 )}
+                    */}
             </CContainer>
         </div>
     );

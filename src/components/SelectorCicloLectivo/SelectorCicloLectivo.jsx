@@ -1,6 +1,8 @@
 //  frontend_AcademiA\src\components\SelectorCicloLectivo\SelectorCicloLectivo.jsx
 
-//  Componente que devuelve un selector dinámico que recibe el id de un alumno (id_entidad), y renderiza un selector dinámico, donde las opciones son los ciclos lectivos donde el alumno cursó alguna materia, y devuelve el ciclo seleccionado.
+//  Componente que devuelve (renderiza) un selector dinámico, donde las opciones son los años obtenidos de la base de datos.
+//  Recibe el id de un alumno (id_entidad).
+// Las opciones son en definitiva, los ciclos lectivos donde el alumno cursó alguna materia.
 
 // Renderizado condicional:  EstiloCForm (CoreUI) o EstiloForm (Bootstrap)
 
@@ -18,13 +20,18 @@ const SelectorCicloLectivo = ({ id_entidad, onCicloChange, variant = 'default' }
     const [error, setError] = useState(null);
 
     useEffect(() => {
+        console.log("Efecto disparado. Valor de id_entidad:", id_entidad);
         const fetchCiclos = async () => {
             if (!id_entidad) return;
 
             try {
                 setLoading(true);
                // Llamada a la API
+                console.log("Por pedir la lista de ciclos" );
                 const response = await getCiclosPorEstudiante(id_entidad);
+                console.log("Datos de Ciclo obtenidos:", response );
+                console.log("Datos sólo la lista de ciclos:", response.data );
+
                 setCiclos(response.data);
                 setError(null);
             } catch (err) {

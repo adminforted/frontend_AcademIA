@@ -1,12 +1,19 @@
 // src/views/estudiantes/GradesSection.jsx
 
-// Recibe el año de Trayectoria.jsx, busca los datos fijos y mapea los SubjectCard.
+// Recibe el año y id_alumno de Trayectoria.jsx, busca los datos fijos y mapea los SubjectCard.
 
 import React, { useState } from 'react';
 import SubjectCard from '../../components/subjectCard/SubjectCard';
+import { useMateriasCicloEstudiante } from '../../hooks/useMateriasCicloEstudiante'
 
-const GradesSection = ({ year }) => {
-    
+const GradesSection = ({ ciclo, id_alumno }) => {
+
+    console.log("🔍 Parámetros al montarse GradeSection: ", {
+        valor_ciclo: ciclo,
+        valor_alumno: id_alumno
+    }
+    )
+
     // Estado para controlar qué materia está expandida (solo una a la vez)
     const [openSubjectId, setOpenSubjectId] = useState(null);
 
@@ -24,9 +31,9 @@ const GradesSection = ({ year }) => {
                 grade: 9.5,
                 status: 'aprobado',
                 details: [
-                    { 
-                        name: '1ER TRIMESTRE', 
-                        grade: 9.0, 
+                    {
+                        name: '1ER TRIMESTRE',
+                        grade: 9.0,
                         status: 'Aprobado',
                         evaluacion: [
                             { nomeval: 'Parcial 1', notaeval: 9.5 },
@@ -44,9 +51,9 @@ const GradesSection = ({ year }) => {
                 grade: 5.8,
                 status: 'reprobado',
                 details: [
-                    { 
-                        name: '1ER TRIMESTRE', 
-                        grade: 5.5, 
+                    {
+                        name: '1ER TRIMESTRE',
+                        grade: 5.5,
                         status: 'Desaprobado',
                         evaluacion: [
                             { nomeval: 'Evaluación Técnica', notaeval: 4.0 },
@@ -59,7 +66,13 @@ const GradesSection = ({ year }) => {
         ]
     };
 
-    const currentSubjects = subjectsData[year] || [];
+    const currentSubjects = subjectsData[ciclo] || [];
+
+    // Llamamos al hok, pasando id_ciclo y id_alumno. El hook se encargará de pedir los datos cuando ambos existan.
+    const { data: materias, loading, error } = useMateriasCicloEstudiante(ciclo, id_alumno);
+
+
+
     return (
         <div className="grades-container mt-4">
             {currentSubjects.length > 0 ? (
@@ -73,7 +86,7 @@ const GradesSection = ({ year }) => {
                 ))
             ) : (
                 <div className="text-center py-5 bg-white rounded-3 border">
-                    <p className="text-muted mb-0">No hay calificaciones disponibles para el año {year}.</p>
+                    <p className="text-muted mb-0">No hay calificaciones disponibles para el año {ciclo}.</p>
                 </div>
             )}
         </div>

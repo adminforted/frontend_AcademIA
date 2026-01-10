@@ -32,6 +32,11 @@ export const remove = (id) => api.delete(`${ENDPOINT}/${id}`);
 export const getMateriasPorEstudiante = (estudianteId) => 
     api.get(`${ENDPOINT}/${estudianteId}/materias`);
 
+//  Obtiene las materias en las que está inscripto un estudiante en un ciclo lectivo  [get_materias_ciclo_por_estudiante]
+export const get_materias_ciclo_por_estudiante = (cicloId, estudianteId) => 
+    api.get(`${ENDPOINT}/${cicloId}/${estudianteId}/materias`);
+
+
 //  Obtiene los Ciclos Lectivos en los cuales un estudiante cursó alguna materia [getMateriasPorEstudiante]
 export const getCiclosPorEstudiante = (estudianteId) => 
     api.get(`${ENDPOINT}/${estudianteId}/ciclos`);
@@ -44,7 +49,8 @@ const apiEstudiantes = {
     update,
     remove,
     getMateriasPorEstudiante, // También puedes exportar funciones especiales
-    getCiclosPorEstudiante
+    getCiclosPorEstudiante,
+    get_materias_ciclo_por_estudiante,
 };
 
 export default apiEstudiantes;
