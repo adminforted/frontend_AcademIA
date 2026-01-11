@@ -10,6 +10,10 @@ import '../../css/AdvancedFilters.css'
 const AttendanceSection = ({ attendanceData, year }) => {
   const [openAttendance, setOpenAttendance] = useState(false);
 
+  console.log(" Datos recibidos del padre: ", year );
+  console.log("ID capturado para el backend:", );
+  console.log("Nombre para la interfaz:", );
+
   // Verificación de seguridad inicial
   if (!attendanceData || !attendanceData.detailedRecords) {
     // Si no hay registro detallado (Años anteriores)

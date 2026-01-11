@@ -1,7 +1,7 @@
 // frontend_AcademiA\src\hooks\useMateriasCicloEstudiante.js
 
 //  Hook para obtener las materias en las que est{a inscripto un estudiante, en un ciclo lectivo}
-//  Recibe cicloId, estudianteId, y devuelve data, loading, error
+//  Recibe cicloId, estudianteId, y devuelve 
 
 import { useState, useEffect } from 'react';
 import { get_materias_ciclo_por_estudiante } from '../api/apiEstudiantes';

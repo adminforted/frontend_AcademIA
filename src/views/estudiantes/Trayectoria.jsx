@@ -83,7 +83,7 @@ const AcademicDashboard = () => {
     //   * error: mensaje de error si API falla o null si está todo OK.
     //    *refectch: llama la función de forma manual, cuando por ejemplo, se presiona el botón "Buscar"
     const { inasistenciaData, loading, error, refetch } = useInasistenciaData(currentEntityId, year);
-    console.log("📡 Par{ametros para obtener datos de inasistencia: ", { currentEntityId, year })
+    console.log("📡 Paráametros para obtener datos de inasistencia: ", { currentEntityId, year })
 
     //  -----   HANDLERS DE INTERFAZ    -----
 
@@ -112,9 +112,6 @@ const AcademicDashboard = () => {
         console.log("🔄 Cambio de ciclo detectado:");
         console.log("ID capturado para el backend:", c.id_ciclo_lectivo);
         console.log("Nombre para la interfaz:", c.nombre_ciclo_lectivo);
-
-
-
     }
 
 
@@ -124,6 +121,9 @@ const AcademicDashboard = () => {
     // Lógica para mostrar mensaje de "esperando búsqueda"
     // Solo para docentes y admins, cuando aún no buscaron
     const isAwaitingSearch = esDocenteOAdmin && !loading && !error && !inasistenciaData && currentEntityId === null;
+
+    const id_alumno = (currentEntityId || id_usuario_logueado);
+     console.log("ID Alumno final:", id_alumno);    
 
 
     return (
@@ -201,8 +201,8 @@ const AcademicDashboard = () => {
                         <div>
                             {/* Llamada al componente de visuaización de notas */}
                             <GradesSection
-                                id_alumno='1'
-                                year={cicloId} />
+                                id_alumno={id_alumno}
+                                ciclo={cicloId} />
                         </div>
 
                         {/* Sección de Asistencia (Extendida del mockup original) */}
