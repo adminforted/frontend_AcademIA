@@ -40,7 +40,7 @@ const SubjectEvaluationHistory = ({ details: propDetails, contextInfo }) => {
 
     const details = propDetails;
 
-    console.log(`🔍 [${contextInfo?.idMateria}] Parámetros al montarse SubjectEvaluationHistory: `, {
+    console.log("🔍 Parámetros al montarse SubjectEvaluationHistory: ", {
         details, propDetails, contextInfo
     })
 
@@ -96,48 +96,28 @@ const SubjectEvaluationHistory = ({ details: propDetails, contextInfo }) => {
                         // Determinamos si ESTE ítem específico debe estar abierto
                         const isOpen = activeIndex === idx;
 
-
-                        if (isOpen && !loading && notas.length > 0) {
-                            console.log("✅ DATOS LISTOS PARA EL HIJO:", {
-                                periodo: detail.tipo_nota,
-                                detail: detail,         //  Datos recibidos por el padre (subjectEvaluationHistory)
-                                examenesYTPs: notas,    //  Datos a enviar al hijo (subjectEvaluationHistoryDetail)
-                                evaluacion: detail.evaluacion,
-                                nota: detail.nota,
-                                isOpen,
-
-                            });
-                        }
-                        /*
-                         console.log(`📤 Pasado al hijo:`,
-                             detail.evaluacion,
-                             detail.nota,
-                             isOpen,
-                             (isOpen ? loading : false),
-                             (isOpen ? notas : []) // Notas que trae el Hook (Examen/TP)
-                         );
-                         */
-
                         return (
                             <CCol md={6} lg={3} key={idx}>
                                 <div className="bg-white p-3 rounded-3 shadow-sm border border-light h-100">
 
-                                    {/* Contenedor Clickable para que muestre el DETALLE (Exámenes y TPs) , si tiene */}
+                                    {/* Contenedor Clickable para el DETALLE (si tiene) */}
                                     <div
-                                        //    style={{ cursor: hasCompactDetail ? 'pointer' : 'default' }}
-                                        //{/*    onClick={hasCompactDetail ? (e) => { */}
+                                    
+                                    //    style={{ cursor: hasCompactDetail ? 'pointer' : 'default' }}
+
+                                    //{/*    onClick={hasCompactDetail ? (e) => { */}
 
                                         style={{ cursor: 'pointer' }}
 
-                                        onClick={(e) => {
-                                            console.log("👌 Datos del Eval. History al clickear: ", {
+                                        onClick={(e) => { 
+                                            console.log("🔍🔍 Datos del Eval. History al clickear: ", {
                                                 detail, contextInfo, idx
                                             })
                                             e.stopPropagation();
                                             // Si ya está abierto lo cerramos, sinó lo abrimos (guardamos el idx en el estado).
                                             setActiveIndex(isOpen ? null : idx);
                                         } //: undefined
-                                        }
+                                    }
                                     >
 
                                         {/* Header del ítem de detalle (Trimestre/Parcial/etc) */}
@@ -173,19 +153,15 @@ const SubjectEvaluationHistory = ({ details: propDetails, contextInfo }) => {
                                         </div>
                                     </div>
 
-
                                     {/* DETALLE COMPACTO COLAPSABLE ANIDADO */}
-                                    {
+                                    {hasCompactDetail && (
                                         <SubjectEvaluationHistoryDetail
-                                            evaluaciones={notas}
+                                            evaluaciones={detail.evaluacion}
                                             visible={isOpen}
-                                            // Pasamos la función para que el hijo pueda "avisar" que quiere cerrarse
-                                            // Cuando el hijo "avisa" (la ejecuta), el padre hace "setActiveIndex(null"
-                                            onClose={() => setActiveIndex(null)}
                                             loading={isOpen ? loading : false} // Pasa el estado de carga
                                             notasExtra={isOpen ? notas : []} // Notas que trae el Hook (Examen/TP)
                                         />
-                                    }
+                                    )}
 
                                 </div>
                             </CCol>

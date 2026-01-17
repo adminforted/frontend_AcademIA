@@ -1,26 +1,17 @@
-import React, { useState } from 'react';
-import {
-    CCard,
-    CCardBody,
-    CCollapse,
-    CRow,
-    CCol
-} from '@coreui/react';
+import React, { useState, memo } from 'react';
+import { CCard, CCardBody, CCollapse, CRow, CCol } from '@coreui/react';
 import CIcon from '@coreui/icons-react';
-import {
-    cilSchool,
-    cilCheckCircle,
-    cilWarning,
-    cilChevronBottom
-} from '@coreui/icons';
+import { cilSchool, cilCheckCircle, cilWarning, cilChevronBottom } from '@coreui/icons';
 
 import SubjectEvaluationHistory from '../subjectEvaluationHistory/SubjectEvaluationHistory'
 
-//const SubjectCard = ({ subject, isOpen, onToggle }) => {
-const SubjectCard = ({ key, nombre, docente, notaMateria, curso, isOpen, onToggle }) => {
+import { useNotasFinalesEstudiante } from '../../hooks/useNotasFinalesEstudiante'
 
-    console.log("🔍 Parámetros al montarse el componente: ", {
-        docente
+//const SubjectCard = ({ subject, isOpen, onToggle }) => {
+const SubjectCard = ({ idAlumno, idMateria, nombreMateria, nombreDocente, notaMateria, idCurso, curso, isOpen, onToggle }) => {
+
+    console.log("🔍 Parámetros al montarse SubjectCard: ", {
+        idAlumno, idMateria, nombreMateria, nombreDocente, notaMateria, idCurso, curso, isOpen, onToggle
     })
 
     // Inicia en 'true' para que se muestre expandido por defecto
@@ -35,7 +26,20 @@ const SubjectCard = ({ key, nombre, docente, notaMateria, curso, isOpen, onToggl
     //  subject.status === 'aprobado' ? 'badge-soft-success' : 'badge-soft-danger';
 
     // Barra de progreso
-      const progressWidth = `${Math.min(notaMateria * 10, 100)}%`;
+    const progressWidth = `${Math.min(notaMateria * 10, 100)}%`;
+
+    // Manejo el Hook useNotasFinalesEstudiante que pide las notas. 
+    // Se ejecuta siempre, pero el hook sólo buscará los datos si isOpen es True (se despliega el detalle)
+    const { data: notas, loading } = useNotasFinalesEstudiante(
+        isOpen ? idAlumno : null,
+        isOpen ? idMateria : null,
+        isOpen ? idCurso : null
+    );
+
+    console.log("🔍 Parámetros obtenidos del hook: ", {
+        notas
+    })
+
 
     return (
         // El clic en la tarjeta principal  colapsa/expande la materia completa
@@ -49,10 +53,10 @@ const SubjectCard = ({ key, nombre, docente, notaMateria, curso, isOpen, onToggl
 
                     {/* Nombre y profesor */}
                     <div className="flex-grow-1" style={{ minWidth: '200px' }}>
-                        <h5 className="fw-bold text-dark mb-1">{nombre}</h5>    
+                        <h5 className="fw-bold text-dark mb-1">{nombreMateria}</h5>
                         <div className="d-flex align-items-center text-muted small">
                             <CIcon icon={cilSchool} size="sm" className="me-1" />
-                            {docente}
+                            {nombreDocente}
                         </div>
                     </div>
 
@@ -65,8 +69,8 @@ const SubjectCard = ({ key, nombre, docente, notaMateria, curso, isOpen, onToggl
                         </div>
                         <div className="progress-modern">
                             <div
-                              className={`progress-bar-animated status-${statusColor}`}
-                              style={{ width: progressWidth }}
+                                className={`progress-bar-animated status-${statusColor}`}
+                                style={{ width: progressWidth }}
                             ></div>
                         </div>
                     </div>
@@ -91,16 +95,18 @@ const SubjectCard = ({ key, nombre, docente, notaMateria, curso, isOpen, onToggl
                         />
                     </div>
 
-
                 </div>
 
                 {/* ---------- Sección colapsable: Historial de evaluaciones (Detalle Largo) --------- */}
                 <CCollapse visible={isOpen}>
-
                     <SubjectEvaluationHistory   //   Historial de evaluaciones
-                        //  details={subject.details}
-                        //  isPassing={isPassing}
-                    />
+                        details={notas || []}   // Pasamos el array 'data' renombrado como 'notas'
+                        contextInfo={{          //  Pasamos los datos del contexto (Curso, materia, alumno)
+                            idAlumno: idAlumno,
+                            idMateria: idMateria,
+                            idCurso: idCurso
+                        }}
+                    /> 
 
                 </CCollapse>
                 {/* ---------- Fin Sección colapsable: Historial de evaluaciones (Detalle Largo) --------- */}
@@ -110,4 +116,6 @@ const SubjectCard = ({ key, nombre, docente, notaMateria, curso, isOpen, onToggl
     );
 };
 
-export default SubjectCard;
+// React.memo evita que el componente se re-ejecute, 
+// a menos que sus props (idMateria, isOpen, etc.) cambien realmente.
+export default memo(SubjectCard);

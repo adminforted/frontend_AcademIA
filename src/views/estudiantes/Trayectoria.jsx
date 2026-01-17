@@ -202,7 +202,8 @@ const AcademicDashboard = () => {
                             {/* Llamada al componente de visuaización de notas */}
                             <GradesSection
                                 id_alumno={id_alumno}
-                                ciclo={cicloId} />
+                                ciclo={cicloId} 
+                                />
                         </div>
 
                         {/* Sección de Asistencia (Extendida del mockup original) */}

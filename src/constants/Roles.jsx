@@ -1,7 +1,7 @@
 // AcademIA/src/constants/roles.js
 
 /**
- * 🚨 DEFINICIÓN DE ROLES DEL SISTEMA 🚨
+ * DEFINICIÓN DE ROLES DEL SISTEMA
  * Los valores deben coincidir *exactamente* con los códigos de rol
  * que devuelve el backend (cod_tipo_usuario).
  */

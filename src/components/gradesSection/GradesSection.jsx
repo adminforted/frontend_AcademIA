@@ -11,7 +11,7 @@ const GradesSection = ({ ciclo: id_ciclo, id_alumno }) => {     // Uso el alias 
 
     console.log("🔍 Parámetros al montarse GradeSection: ", {
         valor_ciclo: id_ciclo,
-        valor_alumno: id_alumno
+        valor_id_alumno: id_alumno
     }
     )
 
@@ -21,53 +21,6 @@ const GradesSection = ({ ciclo: id_ciclo, id_alumno }) => {     // Uso el alias 
     const handleToggle = (id) => {
         setOpenSubjectId(openSubjectId === id ? null : id);
     };
-
-    // DATOS FIJOS (Mocks adaptados a tus componentes)
-    const subjectsData = {
-        '3': [
-            {
-                id: 0,
-                name: 'Cálculo Diferencial',
-                professor: 'Dra. Elena Castro',
-                grade: 9.5,
-                status: 'aprobado',
-                details: [
-                    {
-                        name: '1ER TRIMESTRE',
-                        grade: 9.0,
-                        status: 'Aprobado',
-                        evaluacion: [
-                            { nomeval: 'Parcial 1', notaeval: 9.5 },
-                            { nomeval: 'Trabajo Práctico', notaeval: 8.5 }
-                        ]
-                    },
-                    { name: '2DO TRIMESTRE', grade: 10.0, status: 'Aprobado' },
-                    { name: 'EXAMEN FINAL', grade: 9.5, status: 'Aprobado' }
-                ]
-            },
-            {
-                id: 1,
-                name: 'Programación Avanzada',
-                professor: 'Ing. Ricardo Gómez',
-                grade: 5.8,
-                status: 'reprobado',
-                details: [
-                    {
-                        name: '1ER TRIMESTRE',
-                        grade: 5.5,
-                        status: 'Desaprobado',
-                        evaluacion: [
-                            { nomeval: 'Evaluación Técnica', notaeval: 4.0 },
-                            { nomeval: 'Laboratorio', notaeval: 7.0 }
-                        ]
-                    },
-                    { name: '2DO TRIMESTRE', grade: 6.1, status: 'Aprobado' }
-                ]
-            }
-        ]
-    };
-
-    // const currentSubjects = subjectsData[id_ciclo] || [];
 
     // Llamamos al hok, pasando id_ciclo y id_alumno. El hook se encargará de pedir los datos cuando ambos existan.
     const { data: materias, loading, error } = useMateriasCicloEstudiante(id_ciclo, id_alumno);
@@ -86,36 +39,25 @@ const GradesSection = ({ ciclo: id_ciclo, id_alumno }) => {     // Uso el alias 
     console.log("🔍 Datos que obtengo mediante Hook: ", materias)
     console.log("🔍 Datos DE UN DOCENTE que obtengo mediante Hook: ", materias[0].docente_nombre_completo)
 
-    const currentSubjects = materias;
+    // const currentSubjects = materias;
 
     return (
         <div className="grades-container mt-4">
             {
                 materias.map((materia) => (
                     <SubjectCard
+                        idAlumno={id_alumno}
                         key={materia.id_materia}
-                        nombre={materia.nombre.nombre_materia}
-                        docente={materia.docente_nombre_completo}
+                        idMateria={materia.id_materia}
+                        nombreMateria={materia.nombre.nombre_materia}
+                        nombreDocente={materia.docente_nombre_completo}
                         notaMateria={6}     //  Hardcodeado
+                        idCurso={materia.curso.id_curso}
                         curso={materia.curso.curso}
                         isOpen={openSubjectId === materia.id_materia}
                         onToggle={() => handleToggle(materia.id_materia)}
                     />
                 ))
-
-                /*
-                currentSubjects.map((subject) => (
-                    <SubjectCard
-                        key={subject.id}
-                        subject={subject}
-                        isOpen={openSubjectId === subject.id}
-                        onToggle={() => handleToggle(subject.id)}
-                    />
-                ))
-                */
-
-
-
             }
         </div>
     );
