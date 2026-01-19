@@ -12,6 +12,7 @@
 - ✅ Solo se envían al padre los filtros activos (con `id` y `value` válidos).
 - ✅ El componente acepta `filterOptions` como prop para mayor flexibilidad.
 
+
 ### Uso:
 ```jsx
 <AdvancedFilters

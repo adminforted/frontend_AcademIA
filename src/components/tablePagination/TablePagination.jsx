@@ -1,94 +1,68 @@
-import { CButton, CCard, CCardHeader, CCardBody, CCardFooter, CCol, CRow, CContainer, CPagination, CPaginationItem, CAccordion, CAccordionBody, CAccordionHeader, CAccordionItem, } from '@coreui/react'
+//  frontend_AcademiA\src\components\tablePagination\TablePagination.jsx
+
+import { CRow, CCol, CPagination, CPaginationItem, CFormSelect } from '@coreui/react'
 
 const TablePagination = ({ table }) => {
+    if (!table) return null;
 
-    // ========================================
-    // PROTECCIÓN: Si table no está lista, no renderizamos nada o mostramos placeholder
-    // ========================================
-    if (!table) {
-        return (
-            <div className="text-center py-2 text-muted small">
-                Cargando paginación...
-            </div>
-        );
-    }
+    const { pageIndex, pageSize } = table.getState().pagination;
+    const totalRows = table.getFilteredRowModel().rows.length;
 
     return (
-
-        <div className="bg-white border-top px-3 py-1"
-            style={{
-                position: 'sticky',          // Usamos 'sticky' para que se mantenga en el fondo del contenedor padre
-                bottom: 0,                  // Se fija en la parte inferior
-                zIndex: 1,                  // Asegura que esté sobre el contenido desplazable
-                //width: '100%',              // Garantiza que ocupe todo el ancho del contenedor
-                boxShadow: '0 -2px 5px rgba(0,0,0,0.1)' // Sombra sutil para diferenciarlo
-            }}
-        >
-
-            <CRow className="justify-content-between text-muted  ">
-
-                {/* ---------------------  Controles de paginación ------------------------- */}
-                <CCol xs={12} md={4} className="mb-12 mb-md-0" >
-
-                    <CPagination align="start" size="sm" aria-label="Page navigation">
-                        <CPaginationItem
-                            aria-label="Next"
-                            onClick={() => table.previousPage()}
+        <div className="bg-white border-top px-3 py-2 sticky-bottom shadow-sm">
+            <CRow className="align-items-center justify-content-between g-2">
+                
+                {/* Paginación Principal */}
+                <CCol xs={12} lg="auto">
+                    <CPagination size="sm" className="mb-0">
+                        <CPaginationItem 
+                            onClick={() => table.previousPage()} 
                             disabled={!table.getCanPreviousPage()}
                         >
-                            <span aria-hidden="true">&laquo;</span>
+                            &laquo;
                         </CPaginationItem>
-                        {/* items nros de página del paginado */}
-                        {Array.from({ length: table.getPageCount() }, (_, i) => (   //table.getPageCount() = nº total filas / pageSize
+                        
+                        {/* Lógica de páginas simplificada (Ejemplo para pocas páginas) */}
+                        {[...Array(table.getPageCount())].map((_, i) => (
                             <CPaginationItem
                                 key={i}
-                                active={i === table.getState().pagination.pageIndex} // Muestra la página actual
-                                onClick={() => table.setPageIndex(i)}     // Cambia a una página específica
+                                active={i === pageIndex}
+                                onClick={() => table.setPageIndex(i)}
                             >
-                                {i + 1}       {/* Suma 1 porque el array comienza de 0*/}
+                                {i + 1}
                             </CPaginationItem>
                         ))}
-                        <CPaginationItem
-                            aria-label="Previous"
-                            onClick={() => table.nextPage()}
+
+                        <CPaginationItem 
+                            onClick={() => table.nextPage()} 
                             disabled={!table.getCanNextPage()}
                         >
-                            <span aria-hidden="true">&raquo;</span>
+                            &raquo;
                         </CPaginationItem>
-
                     </CPagination>
-
                 </CCol>
 
-                <CCol xs='auto' className=" ">
-                    <span >
-                        Total de registros: <b>{table.getFilteredRowModel().rows.length}</b>
-                    </span>
+                {/* Información y Selector */}
+                <CCol xs="auto" className="d-flex align-items-center gap-3 text-muted small">
+                    <span>Total registros: <strong>{totalRows}</strong></span>
+                    
+                    <div className="d-flex align-items-center gap-2">
+                        <span>Mostrar:</span>
+                        <CFormSelect 
+                            size="sm"
+                            value={pageSize}
+                            onChange={e => table.setPageSize(Number(e.target.value))}
+                            style={{ width: 'auto' }}
+                        >
+                            {[5, 10, 20, 50].map(size => (
+                                <option key={size} value={size}>{size}</option>
+                            ))}
+                        </CFormSelect>
+                    </div>
                 </CCol>
-
-
-                {/* Info de página y selector */}
-                <CCol xs='auto' className=" ">
-                    Página {table.getState().pagination.pageIndex + 1} de {table.getPageCount()} {/* Suma 1 porque el array comienza de 0*/}
-
-                    <select
-                        className=" border "
-                        value={table.getState().pagination.pageSize}
-                        onChange={e => table.setPageSize(Number(e.target.value))}
-                    //style={{ marginLeft: '10px' }}
-                    >
-                        {[2, 5, 10, 20].map(pageSize => (
-                            <option key={pageSize} value={pageSize}>
-                                Mostrar {pageSize}
-                            </option>
-                        ))}
-                    </select>
-                </CCol>
-
             </CRow>
         </div>
     )
 };
-
 
 export default TablePagination;

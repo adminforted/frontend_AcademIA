@@ -97,3 +97,36 @@
   color: #6c757d;
   text-decoration: none;
 }
+
+
+
+/* Animación de deslizamiento para el Toast */
+/* Evitar que el contenedor corte el movimiento lateral */
+.toaster {
+    overflow: visible !important;
+    z-index: 9999 !important;
+}
+
+/* Definir la transición de la animación */
+.toast {
+    transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1), opacity 0.4s ease !important;
+    display: block !important; /* Asegura que el elemento exista para ser animado */
+}
+
+/* Estado inicial: Fuera de la pantalla a la derecha */
+.toast.showing {
+    transform: translateX(120%) !important;
+    opacity: 0 !important;
+}
+
+/* Estado activo: En su lugar original */
+.toast.show {
+    transform: translateX(0) !important;
+    opacity: 1 !important;
+}
+
+/* Estado de salida: Se retira a la derecha */
+.toast.hiding {
+    transform: translateX(120%) !important;
+    opacity: 0 !important;
+}

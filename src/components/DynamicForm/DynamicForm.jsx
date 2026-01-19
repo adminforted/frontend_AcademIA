@@ -10,12 +10,36 @@ const DynamicForm = ({ fields, initialData, onSubmit, onCancel }) => {
 
   // Detectamos si es edición (si el registro ya tiene un ID o PK)
   // Sirve para distintas opciones si es modal de edicion o de alta
-  const isEdit = !!initialData?.id;
+  const isEdit = !!initialData?.id_entidad;
 
-  // Actualizar el estado interno cuando cambian los datos iniciales (ej: al pasar de Crear a Editar)
+
+  // Sincroniza el estado del formulario con los datos recibidos cuando cambian los datos iniciales
+    //  Formatea las fechas (YYYY-MM-DD) para que el navegador pueda mostrarlas correctamente si viene tipo datetime
+
+    /*
   useEffect(() => {
     setFormData(initialData || {})
   }, [initialData])
+  */
+  useEffect(() => {
+  if (initialData) {
+    const sanitizedData = { ...initialData };
+    
+    // Recorremos los campos para ver cuáles son de tipo fecha
+    fields.forEach(field => {
+      if (field.type === 'date' && sanitizedData[field.name]) {
+        // Cortamos el string para que solo quede YYYY-MM-DD
+        sanitizedData[field.name] = sanitizedData[field.name].split('T')[0];
+      }
+    });
+    
+    setFormData(sanitizedData);
+  } else {
+    setFormData({});
+  }
+}, [initialData, fields]);
+
+
 
   const handleChange = (e) => {
     const { name, value } = e.target

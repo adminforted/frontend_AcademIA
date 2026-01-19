@@ -44,40 +44,28 @@ export const deleteUser = (id) => api.delete(`/api/users/${id}`);     // Elimina
 export const login = (data) => api.post('/api/login', data); // Login de usuario
 
 
+// =====================================================
+//  DOCENTES (tbl_entidad con tipo_entidad = 'DOC')
+// =====================================================
 
-// ==================== DOCENTES (tbl_entidad con tipo_entidad = 'DOC') ====================
-/**
- * Obtiene todos los docentes (entidades con tipo_entidad = 'DOC')
- * El backend debe filtrar automáticamente por tipo_entidad = 'DOC'
- */
+// Obtener (GET) todos los docentes (tipo_entidad = 'DOC')
 export const getDocentes = () => api.get('/api/docentes');
 
+//  Obtener (GET) un Docente específico por ID
+export const getDocente = (id_entidad) => api.get(`/api/docentes/${id_entidad}`);
 
-/**
- * Obtiene un Docente específico por ID
- * @param {number} id - ID del Docente
- */
-export const getDocente = (id) => api.get(`/api/docentes/${id}`);
-
-/**
- * Crea un nuevo Docente
- * El backend debe asignar automáticamente tipo_entidad = 'DOC'
- * @param {object} docente - Datos del Docente
- */
+//  Crear (POST) un nuevo Docente
 export const createDocente = (docente) => api.post('/api/docentes/', docente);
 
-/**
- * Actualiza un docente existente
- * @param {number} id - ID del docente
- * @param {object} docente - Datos actualizados del docente
- */
-export const updateDocente = (id, docente) => api.put(`/api/docentes/${id}`, docente);
+//  Actualizar (PUT) un Docente
+export const updateDocente = (id_entidad, data) => {
+  return api.put(`/api/docentes/${id_entidad}`, data);
+};
+//  export const updateDocente = (id, docente) => api.put(`/api/docentes/${id}`, docente);
 
-/**
- * Elimina un docente
- * @param {number} id - ID del docente a eliminar
- */
-export const deleteDocente = (id) => api.delete(`/api/docentes/${id}`);
+//  Eliminar (DELETE) un docente
+export const deleteDocente = (id_entidad) => api.delete(`/api/docentes/${id_entidad}`);
+
 
 export default api;
 
