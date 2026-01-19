@@ -1,4 +1,5 @@
 # Resumen de Mejoras - Sistema de Gestión de Estudiantes
+# Prueba
 
 ## Fecha: 2025-11-29
 
