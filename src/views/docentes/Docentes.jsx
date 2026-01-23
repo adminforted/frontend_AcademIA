@@ -50,7 +50,7 @@ export default function Docentes() {
         setData: setTableData
     });
 
-    // 2. Definición de Columnas (Memoizada para performance)
+    // 2. Definición de Columnas (Memorizada para performance)
     const columns = useMemo(() => getTableColumns(
         [
             { accessorKey: 'apellido', header: 'Apellido' },

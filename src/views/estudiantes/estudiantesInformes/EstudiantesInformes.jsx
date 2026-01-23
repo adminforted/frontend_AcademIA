@@ -1,30 +1,44 @@
-import React from 'react'; // Eliminamos useState porque el hook lo maneja
-import { CContainer, CCard, CCardBody, CAlert, CRow, CCol, CFormSelect, CFormLabel } from '@coreui/react';
-import './EstudiantesInformes.css'; 
+// frontend_AcademiA\src\views\estudiantes\estudiantesInformes\EstudiantesInformes.jsx
 
+// Componente que "limpia" la vista. Solo maneja el estado y conecta las piezas.
+// Puro lenguaje humano. No hay lógica de fetching ni de mapeo de tablas.
+
+import React, { useState } from 'react';
+import { CContainer, CCard, CCardBody, CAlert, CSpinner, CRow, CCol, CFormSelect, CFormCheck, CFormLabel } from '@coreui/react';
+import './EstudiantesInformes.css';
+
+// import InformConfig from '../../../components/informes/InformConfig';
 import InformMain from '../../../components/informes/InformMain';
 import { EstudiantesInformesConfig } from './EstudiantesInformesConfig';
 import { useInforme } from '../../../components/informes/useInform';
 
-// 1. Importamos tu nuevo Hook "Inteligente"
-import { useInformesData } from '../../../components/informes/hooks/useInformesData';
+import { useInformesData } from '../../../components/informes/hooks/useInformesData'
 
 export default function EstudiantesInformes() {
-    
-    // 2. Usamos el Hook para manejar toda la lógica de los filtros y datos
-    const { 
-        ciclos, 
-        cursos, 
-        materias, 
-        seleccion, 
-        handleCambio, 
-        loading: loadingFiltros, 
-        error: errorFiltros 
+    // Estado inicial con los valores por defecto de la config
+    // const [params, setParams] = useState({});
+
+    // Usamos el Hook para manejar toda la lógica de los filtros y datos
+    const {
+        ciclos, cursos, materias,
+        seleccion, handleCambio,
+        loading: loadingFiltros, error: errorFiltros
     } = useInformesData();
 
-    // 3. Pasamos la 'seleccion' del hook directamente a tu motor de informes.
-    //    Cada vez que cambie un select, 'seleccion' se actualiza y useInforme dispara la búsqueda.
-    const { data, loading, error } = useInforme(EstudiantesInformesConfig.endpoint, seleccion);
+
+    // ---------- Lógica de Validación ----------
+    // Validamos que todos los filtros (select) se encuentren con alguna opción sleeccionada
+    const filtrosCompletos = seleccion.tipoInforme && seleccion.ciclo && seleccion.curso && seleccion.materia;
+    // Pasamos el endpoint SOLO si los filtros están completos. SInó, null (useInforme no hace nada).
+    const endpointActivo = filtrosCompletos ? EstudiantesInformesConfig.endpoint : null;
+
+    console.log('🤞Endpoint para obtener alumnos y notas: ',endpointActivo, '/', seleccion )
+
+    const { data, loading, error } = useInforme(endpointActivo, seleccion);
+    // const { data, loading, error } = useInforme(EstudiantesInformesConfig.endpoint, seleccion);
+
+    // Llamada al motor de datos
+    // const { data, loading, error } = useInforme(EstudiantesInformesConfig.endpoint, params);
 
     return (
         <div className="informes-wrapper pb-5">
@@ -35,14 +49,15 @@ export default function EstudiantesInformes() {
 
                 {/* Sección de Filtros */}
                 <CCard className="border-0 shadow-sm mb-4">
-                    <CCardBody className="py-3">
+                    <CCardBody className="py-2">
+
                         <CRow className="g-3">
-                            
+
                             {/* --- SELECT TIPO DE INFORME --- */}
                             <CCol md={3}>
                                 <CFormLabel>Tipo de Informe</CFormLabel>
-                                <CFormSelect 
-                                    value={seleccion.tipoInforme} 
+                                <CFormSelect
+                                    value={seleccion.tipoInforme}
                                     onChange={(e) => handleCambio('tipoInforme', e.target.value)}
                                 >
                                     <option value="">Seleccione Informe...</option>
@@ -60,16 +75,17 @@ export default function EstudiantesInformes() {
                                     disabled={!seleccion.tipoInforme}
                                 >
                                     <option value="">Seleccione Ciclo...</option>
+                                    {/* --- Mapeo de las opciones del select --- */}
                                     {ciclos.map(c => (
-                                        <option key={c.id} value={c.id}>{c.nombre}</option>
+                                        <option key={c.id_ciclo_lectivo} value={c.id_ciclo_lectivo}>{c.nombre_ciclo_lectivo}</option>
                                     ))}
                                 </CFormSelect>
                             </CCol>
 
-                            {/* --- SELECT CURSO (Dinámico - Paso 2) --- */}
+                            {/* --- SELECT CURSO (Dinámico) --- */}
                             <CCol md={3}>
                                 <CFormLabel>Curso</CFormLabel>
-                                <CFormSelect 
+                                <CFormSelect
                                     value={seleccion.curso}
                                     onChange={(e) => handleCambio('curso', e.target.value)}
                                     disabled={!seleccion.ciclo}
@@ -78,31 +94,47 @@ export default function EstudiantesInformes() {
                                         {loadingFiltros ? 'Cargando...' : 'Seleccione Curso...'}
                                     </option>
                                     {cursos.map(cur => (
-                                        <option key={cur.id} value={cur.id}>
-                                            {cur.nombre} - {cur.division}
+                                        <option key={cur.id_curso} value={cur.id_curso}>
+                                            {cur.curso}
                                         </option>
                                     ))}
                                 </CFormSelect>
                             </CCol>
 
-                            {/* --- SELECT MATERIA (Dinámico - Paso 3) --- */}
+                            {/* --- SELECT MATERIA (Dinámico) --- */}
                             <CCol md={3}>
                                 <CFormLabel>Materia</CFormLabel>
-                                <CFormSelect 
+                                <CFormSelect
                                     value={seleccion.materia}
                                     onChange={(e) => handleCambio('materia', e.target.value)}
                                     disabled={!seleccion.curso}
                                 >
                                     <option value="">Seleccione Materia...</option>
                                     {materias.map(mat => (
-                                        <option key={mat.id} value={mat.id}>
-                                            {mat.nombre}
+                                        <option key={mat.id_materia} value={mat.id_materia}>
+                                            {mat.nombre.nombre_materia}
                                         </option>
                                     ))}
                                 </CFormSelect>
                             </CCol>
 
                         </CRow>
+
+                        {/*
+                        <div>
+                            <InformConfig
+                                config={EstudiantesInformesConfig.tipoInforme}
+                                onChange={setParams}
+                            />
+                        </div>
+                        <div>
+                            <InformConfig
+                                config={EstudiantesInformesConfig.filtros}
+                                onChange={setParams}
+                            />
+                        </div>
+                        */}
+
                     </CCardBody>
                 </CCard>
 
@@ -113,8 +145,8 @@ export default function EstudiantesInformes() {
                     </CAlert>
                 )}
 
-                {/* Vista Principal del Informe (Tabla) */}
-                <InformMain 
+                {/* Vista Principal del Informe */}
+                <InformMain
                     config={EstudiantesInformesConfig}
                     data={data}
                     loading={loading}

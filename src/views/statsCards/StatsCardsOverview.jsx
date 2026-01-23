@@ -4,9 +4,9 @@
 
 import React from 'react';
 import StatCard from '../../components/statCard/StatCard';
-import { CCard, CCardBody, CRow, CCol } from '@coreui/react';
+import { CCard, CCardBody, CRow, CCol, CSpinner} from '@coreui/react';
 import CIcon from '@coreui/icons-react';
-import { cilSchool, cilCheckCircle, cilWarning, cilChevronBottom, cilCalendar, cilChartLine, cilSearch } from '@coreui/icons';
+import { cilSchool, cilCheckCircle, cilWarning, cilChevronBottom, cilCalendar, cilChartLine, cilSearch} from '@coreui/icons';
 
 const StatsCardsOverview = ({ summary = {}, loading = false }) => {
   // Maneja el valor mientras carga
@@ -20,15 +20,20 @@ const StatsCardsOverview = ({ summary = {}, loading = false }) => {
       <CCol sm={6} lg={3}>
         <StatCard
           title="Promedio General"
-          value={renderValue(summary?.average)}
+          // value={renderValue(summary?.average)}
+          value={10}
+          subtext = {'Sin aplazos'}
           color="primary"
-          icon={cilChartLine}
+          // icon={cilChartLine}
         />
       </CCol>
 
       <CCol sm={6} lg={3}>
         <StatCard
-          title="Materias Aprobadas" value={renderValue(summary?.approved)}
+          title="Materias Aprobadas" 
+          value={5}
+          // value={renderValue(summary?.approved)}
+          subtext = {'de 11'}
           icon={cilCheckCircle} color="success"
         />
       </CCol>

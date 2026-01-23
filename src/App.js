@@ -10,6 +10,12 @@ import './scss/examples.scss'
 
 import { isTokenExpired } from './utils/isTokenExpired'
 
+// Estilos de PrimeReact
+import "primereact/resources/themes/lara-light-blue/theme.css"; // Tema
+import "primereact/resources/primereact.min.css";           // Core
+import "primeicons/primeicons.css";                         // Iconos
+
+
 //  ----------  Páginas  ----------  
 const DefaultLayout = React.lazy(() => import('./layout/DefaultLayout'))  //Layoult Principal, por defecto
 const Login = React.lazy(() => import('./views/pages/login/Login'))
@@ -20,7 +26,7 @@ const Page500 = React.lazy(() => import('./views/pages/page500/Page500'))
 const UserManagement = React.lazy(() => import('./views/UserManagement/UserManagement'))
 const Home = React.lazy(() => import('./views/home/Home'))
 const Estudiante = React.lazy(() => import('./views/estudiantes/Estudiantes'))
-const EstudiantesInformes = React.lazy(() => import('./views/estudiantes/EstudiantesInformes'))
+const EstudiantesInformes = React.lazy(() => import('./views/estudiantes/estudiantesInformes/EstudiantesInformes'))
 const Trayectoria = React.lazy(() => import('./views/estudiantes/Trayectoria'))
 const Curso = React.lazy(() => import('./views/cursos/Curso'))
 const CursoInformes = React.lazy(() => import('./views/cursos/CursoInformes'))

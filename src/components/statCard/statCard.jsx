@@ -1,4 +1,4 @@
-// StatCard.jsx
+// frontend_AcademiA\src\components\statCard\StatCard.jsx
 
 import React from 'react';
 import { CCard, CCardBody } from '@coreui/react';
@@ -13,9 +13,15 @@ const StatCard = ({ title, value, icon, color, subtext }) => (
                 <h3 className={`fw-bold text-${color} mb-0 display-6`}>{value}</h3>
                 {subtext && <small className="text-muted" style={{ fontSize: '0.75rem' }}>{subtext}</small>}
             </div>
-            <div className={`bg-${color} bg-opacity-10 p-3 rounded-circle d-flex align-items-center justify-content-center`} style={{ width: '60px', height: '60px' }}>
-                <CIcon icon={icon} size="xl" className={`text-${color}`} />
-            </div>
+
+            {/* Renderizado condicional. Si se recibe ícono, se muestra con el círculo exterior. */}
+            {icon && (
+
+                <div className={`bg-${color} bg-opacity-10 p-3 rounded-circle d-flex align-items-center justify-content-center`} style={{ width: '60px', height: '60px' }}>
+                    <CIcon icon={icon} size="xl" className={`text-${color}`} />
+                </div>
+            )}
+
         </CCardBody>
     </CCard>
 );

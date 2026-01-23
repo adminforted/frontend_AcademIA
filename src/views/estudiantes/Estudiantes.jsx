@@ -1,171 +1,240 @@
 //  frontend_AcademiA\src\views\estudiantes\Estudiantes.jsx
 
-import React, { useState, useEffect, } from 'react'
-import { CButton, CCard, CCardHeader, CCardBody, CCardFooter, CCol, CRow, CContainer } from '@coreui/react'
-import { cilPlus } from '@coreui/icons'
+import React, { useState, useEffect, useRef } from 'react'
+import { CButton, CCard, CCardHeader, CCardBody, CCardFooter, CCol, CRow, CContainer, CTooltip } from '@coreui/react'
+import { cilPlus, cilPencil, cilTrash } from '@coreui/icons'
 import { CIcon } from '@coreui/icons-react'
-import { useReactTable, getCoreRowModel, getPaginationRowModel, getSortedRowModel, getFilteredRowModel } from '@tanstack/react-table'
 
-// Importar componentes reutilizables
-import GenericTable from '../../components/usersTable/GenericTable.jsx'
-import TablePagination from '../../components/tablePagination/TablePagination.jsx'
-import AdvancedFilters from '../../components/advancedFilters/AdvancedFilters.jsx'
-import TableActions from '../../components/tableActions/TableActions.jsx'
+// Componentes de PrimeReact
+import { DataTable } from 'primereact/datatable'
+import { Column } from 'primereact/column'
+import { SelectButton } from 'primereact/selectbutton';
+import { Menu } from 'primereact/menu'; // Menu más ligero que TieredMenu si solo hay un nivel
+import { Button } from 'primereact/button';
+
+// Estilos personalizados
+import './Estudiantes.css'
+
+// Componentes
 import ModalConfirmDel from '../../modals/ModalConfirmDel.jsx'
 import ModalNewEdit from '../../modals/ModalNewEdit.jsx'
+import ToastNotification from '../../components/toastNotification/toastNotification.jsx'
+import { ActionTableButtons } from '../../components/genericTable/actionTableButtons/ActionTableButtons.jsx'
+import { FilterMatchMode } from 'primereact/api';
 
-// Importar funciones API para estudiantes
+// Datos de configuración de Modales
+import { modalNewEditEstudiantesFields, columnsTableEstudiantesConfig } from './estudiantesFormConfigs/EstudiantesFormConfigs.js'
+
+// API y Hooks de Lógica
+// Importamos funciones API para estudiantes
 import apiEstudiantes from '../../api/apiEstudiantes.js'
 
-//  Importar hook para obtener datos de los estudiantes
+//  Hook para obtener datos de los estudiantes
 import { useStudentsData } from '../../hooks/useStudentsData.js'
+// Custom Hook para manejar modales, manejar errores y actualizar la tabla 
+import { useCrudModalManager } from '../../hooks/UseCrudModalManager/useCrudModalManager.js'
+import { TieredMenu } from 'primereact/tieredmenu'
 
-// Importar configuración de columnas
-import { getTableColumns } from '../../utils/columns.js'
+
+// Configuración de botones de menú de filas
+
+/*
+const menuItemsConfig = (openEdit, openDelete) => [
+    {
+        label: 'Acciones',
+        items: [
+            { label: 'Editar', icon: 'pi pi-pencil', command: (e) => openEdit(e) },
+            { label: 'Eliminar', icon: 'pi pi-trash', className: 'text-danger', command: (e) => openDelete(selectedRowData) },
+            // Línea divisoria para separar acciones de gestión
+            { separator: true },
+            // Cierre del menú
+            { label: 'Cancelar', icon: 'pi pi-times', command: () => { } }
+        ]
+    }
+];
+*/
 
 
-// Estado inicial para filtros
-const initialFilters = []
 
-/**
- * Componente Estudiante
- * Gestiona la visualización y administración de estudiantes (tbl_entidad donde tipo_entidad = 'ALU')
- */
 export default function Estudiante() {
 
-    // Usamos el hook para traer datos y los desestructuramos
+    // Hook para traer datos y desestructurar
     const {
         studentsData: tableData,
         setStudentsData: setTableData,
         loading
     } = useStudentsData()
 
+    console.log("Datos traidos del hook: ", { tableData });
 
-    // ---------- Estados principales ----------
+    // Hook de Lógica CRUD ("Administrador")
+    const {
+        editModal, deleteModal,      // Estados de los modales (visible, data, id)
+        openEdit, closeEdit,         // Funciones para abrir/cerrar edición
+        openDelete, closeDelete,     // Funciones para abrir/cerrar borrado
+        toast, setToast,             // Estado de notificaciones
+        handleSave, handleDelete     // Funciones lógicas que llaman a la API
+    } = useCrudModalManager({
+        createApi: apiEstudiantes.create,  // Mapeamos las funciones de tu API
+        updateApi: apiEstudiantes.update,
+        deleteApi: apiEstudiantes.remove,
+        setData: setTableData              // Para actualizar la tabla al terminar
+    });
+
+
+    // Estados de UI
     const [searchTerm, setSearchTerm] = useState('') // Búsqueda global
-    const [columnFilters, setColumnFilters] = useState(initialFilters) // Filtros por columna
-    const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 10 }) // Paginación
-    const [sorting, setSorting] = useState([]) // Ordenamiento
+    const [size, setSize] = useState('normal')
+    const [selectedRows, setSelectedRows] = useState(null)
+    const [pagination, setPagination] = useState({ first: 0, rows: 10 }) // PrimeReact usa 'first' y 'rows'
 
-    // ---------- Estados para modales ----------
-    const [deleteModalVisible, setDeleteModalVisible] = useState(false) // Modal de confirmación de eliminación
-    const [studentToDelete, setStudentToDelete] = useState(null) // ID del estudiante a eliminar
-    const [editModalVisible, setEditModalVisible] = useState(false) // Modal de edición/creación
-    const [studentToEdit, setStudentToEdit] = useState(null) // Datos del estudiante a editar
-
-
-    // ---------- Eliminar estudiante ----------
-    const handleDelete = async (id) => {
-        try {
-            await apiEstudiantes.remove(id)
-            // Actualizar la tabla removiendo el estudiante eliminado
-            setTableData((prev) => prev.filter((student) => student.id !== id))
-            setDeleteModalVisible(false)
-            setStudentToDelete(null)
-            console.log(`Estudiante con ID ${id} eliminado`)
-        } catch (error) {
-            console.error('Error al eliminar estudiante:', error)
-        }
-    }
-
-    // ---------- Abrir modal de confirmación de eliminación ----------
-    const confirmDelete = (id) => {
-        setStudentToDelete(id)
-        setDeleteModalVisible(true)
-    }
-
-    // ---------- Abrir modal de edición ----------
-    const handleClickEditar = (student) => {
-        setStudentToEdit(student)
-        setEditModalVisible(true)
-    }
-
-    // ---------- Guardar estudiante (crear o actualizar) ----------
-    const handleSaveStudent = async (studentData) => {
-        try {
-            if (studentToEdit) {
-                // Actualizar estudiante existente
-                const response = await apiEstudiantes.update(studentToEdit.id, studentData)
-
-                setTableData((prev) =>
-                    prev.map((student) => (student.id === studentToEdit.id ? response.data : student))
-                )
-            } else {
-                // Crear nuevo estudiante
-                const response = await apiEstudiantes.create(studentData)
-                setTableData((prev) => [...prev, response.data])
-            }
-            setEditModalVisible(false)
-            setStudentToEdit(null)
-        } catch (error) {
-            console.error('Error al guardar estudiante:', error)
-            alert(error.response?.data?.detail || 'Error al guardar estudiante')
-        }
-    }
-
-    const estudiantesColumnsConfig = [
-        { accessorKey: 'nombre', header: 'Nombre' },
-        { accessorKey: 'apellido', header: 'Apellido' },
-        {
-            accessorKey: 'fec_nac',
-            header: 'Fecha Nac.',
-            // Formateamos la fecha del formato YYYY-MM-DD a DD/MM/YYYY
-            cell: (info) => {
-                const dateValue = info.getValue()
-                if (!dateValue) return '-'
-                const [year, month, day] = dateValue.split('-')
-                return `${day}/${month}/${year}`
-            },
-        },
-        { accessorKey: 'email', header: 'Email' },
-        { accessorKey: 'domicilio', header: 'Domicilio' },
-        { accessorKey: 'telefono', header: 'Teléfono' },
+    // Opciones para el selector de tamaño
+    const sizeOptions = [
+        { label: 'Compacto', value: 'small' },
+        { label: 'Normal', value: 'normal' },
+        { label: 'Amplio', value: 'large' }
     ]
 
-    // ==================== GENERACIÓN DE COLUMNAS FINALES CON LA FUNCIÓN REUTILIZABLE ====================
+    // Template para renderizar los botones de acción
+    const actionBodyTemplate = (rowData) => {
+        return (
+            <div className="text-center">
+                <Button
+                    icon="pi pi-ellipsis-v" // Ícono de tres puntos verticales
+                    rounded
+                    text
+                    severity="secondary"
+                    //aria-controls="popup_menu_left"
+                    //aria-haspopup
+                    onClick={(event) => {
+                        // event.preventDefault();
+                        event.stopPropagation();
+                        setSelectedRowData(rowData); // Guardamos la fila actual
+                        menuRef.current?.toggle(event); // Mostramos el menú
+                    }}
+                />
+            </div>
+        );
+    };
 
-    const columns = getTableColumns(
-        estudiantesColumnsConfig,
-        confirmDelete,      // para el botón borrar
-        handleClickEditar   // para el botón editar
-    )
 
+    /*
+    const actionBodyTemplate = (rowData) => {
+        return (
+            <ActionTableButtons
+                rowData={rowData}
+                openEdit={openEdit}      // Pasamos la función del hook
+                openDelete={openDelete}  // Pasamos la función del hook
+            />
+        );
+    }
+    */
 
-    // ---------- Configuración de TanStack Table ----------
-    const table = useReactTable({
-        data: tableData || [], // Por seguridad, por si los datos son nulos
-        columns,
-        getCoreRowModel: getCoreRowModel(),
-        getPaginationRowModel: getPaginationRowModel(),
-        onPaginationChange: setPagination,
-        getSortedRowModel: getSortedRowModel(),
-        onSortingChange: setSorting,
-        getFilteredRowModel: getFilteredRowModel(),
-        onGlobalFilterChange: setSearchTerm,
-        onColumnFiltersChange: setColumnFilters,
-        state: {
-            pagination,
-            sorting,
-            globalFilter: searchTerm,
-            columnFilters,
+    // Cleanup para el menú de acciones
+    useEffect(() => {
+        return () => {
+            menuRef.current?.hide()
+        }
+    }, [])
+
+    //  Componente para Header de tabla
+    const headerTable = () => {
+        return (
+            <div className="d-flex justify-content-between align-items-center " >
+                {/* Selector de tamaño */}
+                <SelectButton
+                    value={size}
+                    onChange={(e) => { if (e.value) setSize(e.value); }}
+                    options={sizeOptions}
+                    className="density-selector"
+                />
+                {/* Buscador global */}
+                <input
+                    className="form-control form-control-sm w-25"
+                    type="text"
+                    placeholder="Buscar..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
+            </div>
+        );
+    }
+
+    const paginatorTemplate = {
+        'CurrentPageReport': (options) => {
+            return (
+                <span className="mx-3" style={{ color: 'var(--text-color-secondary)', userSelect: 'none' }}>
+                    Mostrando {options.first} a {options.last} de <b style={{ color: 'var(--primary-color)' }}>{options.totalRecords} estudiantes</b>
+                </span>
+            )
         },
-    })
+
+        layout: ' FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown CurrentPageReport',
+
+    };
+
+    // Configuración de filtros
+    const [filters, setFilters] = useState({
+        global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+        nombre: { value: null, matchMode: FilterMatchMode.CONTAINS },
+        apellido: { value: null, matchMode: FilterMatchMode.CONTAINS },
+        dni: { value: null, matchMode: FilterMatchMode.CONTAINS },
+        email: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    });
+
+    // Configuración tiredMenu
+    const menuRef = useRef(null);
+    const [selectedRowData, setSelectedRowData] = useState(null); // Para saber qué fila se clickeó
+
+    const menuItems = [
+        {
+            label: 'Editar', icon: 'pi pi-pencil',
+            command: () => {
+                if (selectedRowData) {
+                    openEdit(selectedRowData);
+                    menuRef.current?.hide()
+                }
+            }
+        },
+        {
+            label: 'Eliminar', icon: 'pi pi-trash', className: 'text-danger',
+            command: () => {
+                if (selectedRowData) {
+                    openDelete(selectedRowData);
+                    menuRef.current?.hide()
+                }
+            }
+        },
+        { separator: true },
+        {
+            label: 'Cancelar', icon: 'pi pi-times',
+            command: () => {
+                menuRef.current?.hide()
+            }
+        }
+    ];
+
+
 
     return (
-
         <div style={{ padding: '10px' }}>
             <h1 className="ms-1" >Estudiantes</h1>
+
+            {/* Componente de Notificaciones (Toast) */}
+            <ToastNotification toast={toast} setToast={setToast} />
+
             <CContainer>
-
-
                 <CCard className="mb-1">
+
                     {/* ---------- ENCABEZADO ---------- */}
                     <CCardHeader className="py-2 bg-white">
                         <CRow className="justify-content-between align-items-center">
                             <CCol xs={12} sm="auto">
+
                                 <h4 id="titulo" className="mb-0">
                                     Gestión de Estudiantes
                                 </h4>
+
                                 <div className="small text-body-secondary">
                                     Administración de alumnos del establecimiento
                                 </div>
@@ -174,46 +243,101 @@ export default function Estudiante() {
                             {/* Botón para agregar nuevo estudiante */}
                             <CCol xs={12} sm="auto" className="text-md-end">
                                 <CButton
-                                    color="primary"
-                                    className="shadow-sm"
-                                    size="sm"
-                                    onClick={() => handleClickEditar('')} // Abrir modal vacío para crear nuevo
+                                    color="primary" className="shadow-sm" size="sm"
+                                    onClick={() => openEdit()}  // Función openEdit() del hook sin argumentos = Nuevo
                                 >
                                     <CIcon icon={cilPlus} className="me-1" />
-                                    Nuevo Estudiante
+                                    Nuevo
                                 </CButton>
                             </CCol>
                         </CRow>
                     </CCardHeader>
 
-
-
                     {/* ---------- CUERPO ---------- */}
                     <CCardBody className="px-4 pt-1 pb-2 border border-light">
 
-                        {/* ---------- FILTROS AVANZADOS Y BÚSQUEDA GLOBAL ---------- */}
-                        <AdvancedFilters
-                            searchTerm={searchTerm}
-                            setSearchTerm={setSearchTerm}
-                            columnFilters={columnFilters}
-                            setColumnFilters={setColumnFilters}
-                            filterOptions={[
-                                { value: 'nombre', label: 'Nombre' },
-                                { value: 'apellido', label: 'Apellido' },
-                                { value: 'email', label: 'Email' },
-                                { value: 'domicilio', label: 'Domicilio' },
-                                { value: 'telefono', label: 'Teléfono' },
-                            ]}
-                        />
+                        {/* ---------- TABLA ---------- */}
+                        {/* TABLA CON WRAPPER DE ESTILOS 
+                         estudiantes-wrapper' es el nombre del contenedor, para referirlo en el .css */}
+                        <div className={`estudiantes-wrapper modo-${size}`} >
 
-                        {/* ---------- ACCIONES DE TABLA (Exportar, etc.) ---------- */}
-                        <TableActions table={table} />
 
-                        {/* Tabla de estudiantes */}
-                        <GenericTable table={table} />
+                            <TieredMenu
+                                model={menuItems}
+                                popup
+                                ref={menuRef}
+                                appendTo={document.body}
+                                onHide={() => setSelectedRowData(null)}
+                            />
+
+
+                            <DataTable
+                                value={tableData}
+                                header={headerTable}
+                                // footer = {}
+
+                                className="p-datatable-gridlines" // bordes
+                                tableStyle={{ minWidth: '100%', tableLayout: 'fixed' }}
+                                stripedRows
+                                selectionMode={'checkbox'}
+                                selection={selectedRows}
+                                onSelectionChange={(e) => setSelectedRows(e.value)}
+                                dataKey="id_entidad"
+                                //  Ordenamiento
+                                removableSort
+                                sortField="apellido"
+                                sortOrder={1}
+                                loading={loading}
+
+                                // Paginación
+                                paginator
+                                rows={pagination.rows}
+                                rowsPerPageOptions={[5, 10, 25, 50]} // Opciones del selector
+                                paginatorPosition="bottom"
+                                // Diseño del paginador (Template)
+                                paginatorTemplate={paginatorTemplate}
+
+                                first={pagination.first}
+                                onPage={(e) => setPagination(e)}
+
+                                // Filtro global
+                                globalFilter={searchTerm}
+
+                                // Filtros por Columna
+                                filters={filters}
+                                onFilter={(e) => setFilters(e.filters)} // Actualiza el estado cuando el usuario escribe
+                                filterDisplay="row"
+
+                                emptyMessage="No se encontraron estudiantes."
+
+                            >
+                                <Column selectionMode="multiple" headerStyle={{ width: '3rem' }}></Column>
+
+                                {/* Renderizado dinámico de columnas de datos */}
+                                {columnsTableEstudiantesConfig.map((col) => (
+                                    <Column
+                                        key={col.field}
+                                        field={col.field}
+                                        header={col.header}
+                                        body={col.body} // Si no tiene body, valor por defecto
+                                        sortable={col.sortable}
+                                        filter
+                                        filterPlaceholder="Buscar"
+                                        // Desactivamos el menú de opciones (para que sea solo texto directo)
+                                        showFilterMenu={false}
+                                        style={{ width: col.width }}
+
+                                    />
+                                ))}
+
+                                <Column header="" body={actionBodyTemplate}
+                                    style={{ width: '100px', textAlign: 'left' }}
+                                />
+                            </DataTable>
+                        </div>
                     </CCardBody>
 
-                    {/* ---------- PIE DE PÁGINA CON PAGINACIÓN ---------- */}
+                    {/* ---------- PIE DE PÁGINA ---------- */}
                     <CCardFooter
                         className="bg-white border-top px-3 py-1"
                         style={{
@@ -223,42 +347,28 @@ export default function Estudiante() {
                             boxShadow: '0 -2px 5px rgba(0,0,0,0.1)',
                         }}
                     >
-                        <TablePagination table={table} />
                     </CCardFooter>
+
                 </CCard>
 
-                {/* ---------- MODALES ---------- */}
-
-                {/* Modal de edición/creación de estudiante */}
+                {/* MODAL NUEVO / EDITAR usando los estados del Hook 'editModal' */}
                 <ModalNewEdit
-                    visible={editModalVisible}
-                    onClose={() => {
-                        setEditModalVisible(false)
-                        setStudentToEdit(null)
-                    }}
-                    title={studentToEdit ? 'Editar Estudiante' : 'Nuevo Estudiante'}
-                    initialData={studentToEdit || {}}
-                    onSave={handleSaveStudent}
-                    fields={[
-                        { name: 'nombre', label: 'Nombre', type: 'text', required: true, placeholder: 'Ejemplo: Carlos' },
-                        { name: 'apellido', label: 'Apellido', type: 'text', required: true, placeholder: 'Ejemplo: Pérez' },
-                        { name: 'email', label: 'Email', type: 'email', required: false, placeholder: 'ejemplo@mail.com' },
-                        { name: 'fec_nac', label: 'Fecha de Nacimiento', type: 'date', required: false },
-                        { name: 'domicilio', label: 'Domicilio', type: 'text', required: false, placeholder: 'Calle 123' },
-                        { name: 'telefono', label: 'Teléfono', type: 'tel', required: false, placeholder: '1234567890' },
-                    ]}
+                    visible={editModal.visible}
+                    onClose={closeEdit}
+                    title={editModal.item ? 'Editar Estudiante' : 'Nuevo Estudiante'}
+                    initialData={editModal.item || {}}
+                    onSave={handleSave} // El hook maneja la lógica de Create vs Update
+                    fields={modalNewEditEstudiantesFields}
                 />
 
-                {/* Modal de confirmación de eliminación */}
+                {/* MODAL BORRAR conectado a los estados del Hook 'deleteModal' */}
                 <ModalConfirmDel
-                    visible={deleteModalVisible}
-                    onClose={() => {
-                        setDeleteModalVisible(false)
-                        setStudentToDelete(null)
-                    }}
-                    onConfirm={handleDelete}
-                    userId={studentToDelete}
+                    visible={deleteModal.visible}
+                    onClose={closeDelete}
+                    onConfirm={handleDelete} // El hook maneja la llamada a la API y el Toast
+                    userId={deleteModal.id}
                 />
-            </CContainer>
-        </div>)
+            </CContainer >
+
+        </div >)
 }

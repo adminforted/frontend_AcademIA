@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react'
 import { CCard, CCardHeader, CCardBody, CCardFooter, CCol, CRow, CContainer } from '@coreui/react'
 
 //  Componente que configura la búsqueda de datos para el informe
-import InformesConfig from '../../components/informes/informesConfig/InformesConfig'
+import InformesConfig from '../../../components/informes/informConfig/InformConfig'
 
 export default function EstudiantesInformes() {
 
@@ -21,7 +21,7 @@ export default function EstudiantesInformes() {
                         <CRow className="justify-content-between align-items-center " > {/* Fila en la grilla.*/}
                             <CCol xs={12} sm="auto">    {/* Columna dentro de fila. Ocupa 5 de 12 unidades disponibles. Hereda gutter de CRow*/}
                                 <h4 id="titulo" className="mb-0 ">
-                                    Informes Estudiantes
+                                    Informes Estudiantesss
                                 </h4>
                                 <div className="small text-body-secondary"> Reportes y listados</div>
                             </CCol>
