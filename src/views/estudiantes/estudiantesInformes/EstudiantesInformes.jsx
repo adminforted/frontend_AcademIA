@@ -18,7 +18,9 @@ export default function EstudiantesInformes() {
     // Estado inicial con los valores por defecto de la config
     // const [params, setParams] = useState({});
 
-    // Usamos el Hook para manejar toda la lógica de los filtros y datos
+    // Usamos el Hook para manejar toda la lógica de:
+    //   - Gestión de menús desplegables (Selects).
+    //   - Gestión de lista de los select Ciclos, luego Cursos, y luego Materias.
     const {
         ciclos, cursos, materias,
         seleccion, handleCambio,
@@ -29,12 +31,25 @@ export default function EstudiantesInformes() {
     // ---------- Lógica de Validación ----------
     // Validamos que todos los filtros (select) se encuentren con alguna opción sleeccionada
     const filtrosCompletos = seleccion.tipoInforme && seleccion.ciclo && seleccion.curso && seleccion.materia;
+
     // Pasamos el endpoint SOLO si los filtros están completos. SInó, null (useInforme no hace nada).
-    const endpointActivo = filtrosCompletos ? EstudiantesInformesConfig.endpoint : null;
+    let endpointActivo = null;
 
-    console.log('🤞Endpoint para obtener alumnos y notas: ',endpointActivo, '/', seleccion )
+    if (filtrosCompletos) {
+        // Pasamos la "seleccion" a la función de la config.
+        endpointActivo = EstudiantesInformesConfig.getEndpoint(seleccion);
+    }
+    console.log('🤞🤞Endpoint generado por config:', endpointActivo);
 
-    const { data, loading, error } = useInforme(endpointActivo, seleccion);
+    // Extraemos el mapper del archivo de configuracion EstudiantesInformesConfig
+    const dataMapper = EstudiantesInformesConfig.mapper;
+    // Extraemos el "Calculador"
+    const dataCalculator = EstudiantesInformesConfig.summaryCalculator
+
+    // Hook que obtiene la lista de alumnos y sus notas (con dataMapper, los valores calculados ).
+    const { data, loading, error } = useInforme(endpointActivo, seleccion, dataMapper, dataCalculator);
+
+    console.log('🤞🤞🤞 Datos obtenidos por el Hook:', data);
     // const { data, loading, error } = useInforme(EstudiantesInformesConfig.endpoint, seleccion);
 
     // Llamada al motor de datos
@@ -117,24 +132,7 @@ export default function EstudiantesInformes() {
                                     ))}
                                 </CFormSelect>
                             </CCol>
-
                         </CRow>
-
-                        {/*
-                        <div>
-                            <InformConfig
-                                config={EstudiantesInformesConfig.tipoInforme}
-                                onChange={setParams}
-                            />
-                        </div>
-                        <div>
-                            <InformConfig
-                                config={EstudiantesInformesConfig.filtros}
-                                onChange={setParams}
-                            />
-                        </div>
-                        */}
-
                     </CCardBody>
                 </CCard>
 

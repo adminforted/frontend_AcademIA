@@ -21,26 +21,48 @@ const StatsCardsOverview = ({ config, summary = {}, loading = false }) => {
   if (!config || !config.stats) return null;
 
   return (
-  
     <CRow>
-      {/* Mapeamos la configuración para generar las cards dinámicamente */}
-      {config.stats.map((stat) => (
-        <CCol sm={6} lg={3} key={stat.key}>
-          <StatCard
-            title={stat.title}
-            // Buscamos en 'summary' la llave que indica la config (ej: 'average')
-            value={renderValue(summary[stat.key])} 
-            
-            // Texto opcional debajo (ej: "de 11 alumnos")
-            subtext={stat.suffix} 
-            
-            color={stat.color}
-            icon={stat.icon}
-          />
-        </CCol>
-      ))}
+      <CCol sm={6} lg={3}>
+        <StatCard
+          title="Promedio General"
+          // value={renderValue(summary?.average)}
+          value={10}
+          subtext={'Sin aplazos'}
+          color="primary"
+        // icon={cilChartLine}
+        />
+      </CCol>
+
+      <CCol sm={6} lg={3}>
+        <StatCard
+          title="Materias Aprobadas"
+          value={5}
+          // value={renderValue(summary?.approved)}
+          subtext={'de 11'}
+          icon={cilCheckCircle} color="success"
+        />
+      </CCol>
+
+      <CCol sm={6} lg={3}>
+        <StatCard
+          title="Asistencia Global"
+          value={renderValue(summary?.attendance)}
+          icon={cilCalendar}
+          color="info"
+        />
+      </CCol>
+
+      <CCol sm={6} lg={3}>
+        <StatCard
+          title="Requieren Atención"
+          value={renderValue(summary?.failed)}
+          icon={cilWarning}
+          color="danger"
+        />
+      </CCol>
+
+
     </CRow>
-    
   );
 };
 

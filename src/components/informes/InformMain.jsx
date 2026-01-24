@@ -1,4 +1,4 @@
-// 
+// frontend_AcademiA\src\components\informes\InformMain.jsx
 
 // Corazón visual del reporte de informes. Recibe los datos y los distribuye en las secciones del informe.
 
@@ -15,6 +15,7 @@ import { generatePDF, generateExcel } from './exportUtils';
 
 
 const InformMain = ({ config, data, loading }) => {
+    console.log('Info recibida en InformMain: ', 'config: ', config, 'data:', data, 'loading: ', loading)
 
     const dt = useRef(null); // Referencia a la tabla
 
@@ -28,7 +29,7 @@ const InformMain = ({ config, data, loading }) => {
                 tooltipOptions={{ position: 'bottom' }}
                 size="small"
                 // Deshabilitamos si no hay datos
-                disabled={loading || !data?.list?.length} 
+                disabled={loading || !data?.list?.length}
             />
 
             <Button type="button" icon="pi pi-file-pdf" severity="danger" rounded
@@ -37,20 +38,23 @@ const InformMain = ({ config, data, loading }) => {
                 tooltipOptions={{ position: 'bottom' }}
                 size="small"
                 // Deshabilitamos si no hay datos
-                disabled={loading || !data?.list?.length} 
-                 />
+                disabled={loading || !data?.list?.length}
+            />
         </div>
     );
 
-    // Función para renderizar el cuerpo de la celda según el bodyType de la config
+    // Función para renderizar el cuerpo de la celda, según el estilo definido en el bodyType del
+    //  archivo de configuración del informe
     const bodyTemplate = (rowData, col) => {
         const value = rowData[col.field];
 
+        // Si el campo tiene bodyType: 'badge',muestra el dato en forma de Badge
         if (col.bodyType === 'badge') {
             const severity = col.severity ? col.severity(value) : 'info';
             return <span className={`badge bg-${severity}`}>{value}</span>;
         }
 
+        // Si el campo tiene bodyType: 'tag', muestra el dato tipo etiqueta o Tag
         if (col.bodyType === 'tag') {
             return <span className="px-2 py-1 rounded bg-light border fw-semibold text-uppercase" style={{ fontSize: '0.7rem' }}>
                 {value}
@@ -73,6 +77,7 @@ const InformMain = ({ config, data, loading }) => {
                 {/* MÉTRICAS (Usa StatsCardsOverview) */}
                 <div className="mb-4">
                     <StatsCardsOverview
+                        config={config}
                         summary={data?.summary}
                         loading={loading}
                     />
