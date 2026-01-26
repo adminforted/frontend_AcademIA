@@ -3,124 +3,136 @@
 // Custom Hook que centraliza la lógica de las peticiones, gestionando los estados de las opciones y lo que el usuario va seleccionando.
 
 import { useState, useEffect } from 'react';
-import { getCiclosAll, getMateriasCurso } from '../../../api/apiMaterias';
-import { getCursosCiclo } from '../../../api/apiCursos'
+import api from '../../../api/api';
 
-export const useInformesData = () => {
-    // Estados para las opciones de los Selects
-    const [ciclos, setCiclos] = useState([]);
-    const [cursos, setCursos] = useState([]);
-    const [materias, setMaterias] = useState([]);
+// Recibimos "config" como prop, porque ahí están definidos los filtros.
+export function useInformesData(config) {
+    console.log('config recibido al montar el componente: ', config)
+    // Evitamos "crashes".
+    if (!config) {
+        return {
+            dataSources: {},
+            seleccion: {},
+            handleCambio: () => { },
+            loading: false,
+            error: null
+        };
+    }
+
+    const [dataSources, setDataSources] = useState({});
 
     // Estados de UI
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
-    // Estados para los valores seleccionados
-    const [seleccion, setSeleccion] = useState({
-        tipoInforme: '',
-        ciclo: '',
-        curso: '',
-        materia: ''
-    });
+    // Estados dinñamicos para los valores seleccionados
+    // Esun useState para por ejemplo, ciclo, curso, materia,etc.
+    const [seleccion, setSeleccion] = useState({});
 
-    // Cargar CICLOS cuando se selecciona un Tipo de Informe
+    // Garga opciones dinámicas, de forma genérica, según venganen el config
     useEffect(() => {
-        if (seleccion.tipoInforme) {
-            const fetchCiclos = async () => {
-                setLoading(true);
-                try {
-                     console.log('A punto de leer Ciclos lectivos');
-                    const response = await getCiclosAll();
-                    console.log('Ciclos lectivos obtenidos: ', response.data);
-                    setCiclos(response.data);
-                    setError(null);
-                } catch (err) {
-                    setError("Error al cargar ciclos");
-                    console.error(err);
-                } finally {
-                    setLoading(false);
+        const filters = config?.filters || [];
+        console.log('Config de filtros recibido: ', config?.filters || [])
+
+
+        const fetchOptions = async (filter) => {
+            setLoading(true);
+
+            try {
+
+                // Obtenemos la URL del endpoint
+                // Detectamos primero si es dinámica (función) o estática (string)
+                const isDynamic = typeof filter.endpoint === 'function';
+
+                // Definimos URL y Params,medianteoperadores ternarios
+                const url = isDynamic ? filter.endpoint(seleccion) : filter.endpoint;
+                const params = isDynamic ? {} : { ...seleccion };
+
+                console.log('🎁 endpoint: ', 'api.get', url, params)
+
+                //  Hacemos la petición a la URL calculada
+                // Usamos 'api.get' (en lugar de 'fetch') para que incluya el TOKEN automáticamente
+                const response = await api.get(url, { params });
+
+                // Axios devuelve la data en response.data
+                const data = response.data;
+                console.log('🎁🎁 Datos recibidos: ', data)
+
+                setDataSources(prev => ({
+                    ...prev,
+                    [filter.key]: data
+                }));
+
+                // Limpiamos errores previos si hubo éxito
+                setError(null);
+
+
+
+            } catch (err) {
+                console.error(`Error cargando ${filter.label}:`, err);
+                setError(`Error al cargar ${filter.label}`);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+
+        filters.forEach(filter => {
+            // Si ya tenemos datos para este filtro Y NO depende de nada (es estático, como Ciclos), no recargamos
+            if (dataSources[filter.key] && !filter.dependsOn && !typeof filter.endpoint === 'function') {
+                return;  }
+
+            // Si no es select o no tiene endpoint, ignorar (ej. estáticos o checkbox)
+            if (filter.type !== 'select' || !filter.endpoint) return;
+
+            // Si el filtro depende de otro y aún no hay valor seleccionado del padre, no cargamos
+            if (filter.dependsOn && !seleccion[filter.dependsOn]) return;
+
+            // Cargamos solo si aún no hay opciones
+            fetchOptions(filter);
+        });
+
+    }, [
+        // El useEffect se dispara cuando cambia la configuración o cuando el usuario selecciona algo nuevo.
+        // JSON.stringify ayuda a comparar el objeto seleccion por valor y no por referencia
+        JSON.stringify(seleccion),
+        config.filters  // config.filters solo, para queno se dispare muchas veces
+    ]);
+
+    // HandleCambio con "Efecto Cascada" (Limpieza de hijos)
+    const handleCambio = (key, value) => {
+        setSeleccion(prevSeleccion => {
+            const nuevaSeleccion = { ...prevSeleccion, [key]: value };
+
+            // Lógica de limpieza: Si cambio 'ciclo', debo borrar 'curso' y 'materia' de la selección.
+            // Recorremos los filtros para ver quién depende de la key que acaba de cambiar.
+            config.filters.forEach(f => {
+                if (f.dependsOn === key) {
+                    // Borramos el valor seleccionado del hijo
+                    delete nuevaSeleccion[f.key];
+
+                    // Recursividad simple: Si borro por ej curso, también debería buscar quién depende de curso.
+                    // Para hacerlo simple a 1 nivel:
+                    config.filters.forEach(nieto => {
+                        if (nieto.dependsOn === f.key) {
+                            delete nuevaSeleccion[nieto.key];
+                        }
+                    });
                 }
-            };
-            fetchCiclos();
-        } else {
-            // Si limpian el tipo de informe, reseteamos todo lo de abajo
-            setCiclos([]);
-            setSeleccion(prev => ({ ...prev, ciclo: '', curso: '', materia: '' }));
-        }
-    }, [seleccion.tipoInforme]); // Se ejecuta cada vez que cambia el estado de seleccion.tipoInforme
+            });
+            return nuevaSeleccion;
 
-
-    // Cargar CURSOS cuando se selecciona un Ciclo
-    useEffect(() => {
-        // Buscamos si hay un ID de ciclo seleccionado
-        console.log('Lo que usa el useEffect como ID de ciclo selecionado: ', seleccion.ciclo);
-        if (seleccion.ciclo) {
-            const fetchCursos = async () => {
-                setLoading(true); // Reutilizamos el loading general
-                try {
-                    // Llamamos al endpoint pasando el ID del ciclo
-                    console.log('A punto de leer Cursos del ciclo seleccionado:', seleccion.ciclo );
-                    const response = await getCursosCiclo(seleccion.ciclo);
-                    console.log('Cursos obtenidos del ciclo seleccionado: ', response.data);
-                    setCursos(response.data);
-                } catch (err) {
-                    setError("Error al cargar cursos");
-                    console.error(err);
-                } finally {
-                    setLoading(false);
-                }
-            };
-            fetchCursos();
-        } else {
-            // Si el usuario deselecciona el ciclo, vaciamos la lista de cursos
-            setCursos([]);
-        }
-    }, [seleccion.ciclo]); // Se ejecuta cada vez que cambia el ID del ciclo
-
-
-    // Cargar MATERIAS cuando se selecciona un Curso
-    useEffect(() => {
-        if (seleccion.curso) {
-            const fetchMaterias = async () => {
-                setLoading(true);
-                try {
-                    // Llamamos al endpoint pasando el ID del curso
-                    const response = await getMateriasCurso(seleccion.curso);
-                    console.log('Materias obtenidas del curso ', seleccion.curso, 'seleccionado: ', response.data);
-                    setMaterias(response.data);
-                } catch (err) {
-                    setError("Error al cargar materias");
-                    console.error(err);
-                } finally {
-                    setLoading(false);
-                }
-            };
-            fetchMaterias();
-        } else {
-            // Si deseleccionan el curso, vaciamos la lista de materias
-            setMaterias([]);
-        }
-    }, [seleccion.curso]); // Se dispara cuando cambia 'seleccion.curso'
-
-
-    // Manejador de cambios (cascada)
-    const handleCambio = (campo, valor) => {
-        setSeleccion(prev => ({
-            ...prev,
-            [campo]: valor,
-            // Si cambia un nivel superior, reseteamos los inferiores (en casacada)
-            ...(campo === 'tipoInforme' && { ciclo: '', curso: '', materia: '' }),
-            ...(campo === 'ciclo' && { curso: '', materia: '' }),
-            ...(campo === 'curso' && { materia: '' }),
-        }));
+        });
+    }
+    console.log('datasources: ', dataSources, ' seleccion: ', seleccion)
+    return {
+        dataSources,
+        seleccion,
+        handleCambio,
+        loading,
+        error
     };
-
-    return { ciclos, cursos, materias, seleccion, loading, error, handleCambio };
-};
-
-
-
+}
 
 
 

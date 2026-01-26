@@ -2,7 +2,7 @@
 
 // Corazón visual del reporte de informes. Recibe los datos y los distribuye en las secciones del informe.
 
-import React, { useRef } from 'react';
+import React, { useRef, useState, useEffect, useMemo } from 'react';
 import { CCard, CCardHeader, CCardBody } from '@coreui/react';
 import { Button } from 'primereact/button'; // Usamos botones de Prime para consistencia
 import { DataTable } from 'primereact/datatable';
@@ -19,7 +19,47 @@ const InformMain = ({ config, data, loading }) => {
 
     const dt = useRef(null); // Referencia a la tabla
 
-    // Botones de exportación para el header de la tabla
+    // Estado que controla qué filtro visual está activo (null = ninguno)
+    const [activeFilter, setActiveFilter] = useState(null);
+
+    // Si cambian los datos globales (ej. el usuario cambia de Curso), reseteamos el filtro
+    useEffect(() => { setActiveFilter(null) }, [data]);
+
+    // Lògica defiltrado: useMemo para que no recalcule en cada render si no cambia nada importante
+    const filteredList = useMemo(() => {
+        const list = data?.list || [];
+
+        // Si no hay filtro activo, devolvemos la lista entera
+        if (!activeFilter) return list;
+
+        // Si hay filtro, aplicamos la condición definida en el config
+        return list.filter(item => {
+            // Obtenemos el valor de la celda (ej. la nota del alumno)
+            const cellValue = item[activeFilter.field];
+
+            // Si tiene definido un filtro avanzado ('isMatch'), ejecutamos su función
+            if (activeFilter.isMatch) {
+                return activeFilter.isMatch(cellValue);
+            }
+            // Si tiene definido un filtrosimple
+            return cellValue === activeFilter.value;
+        });
+    }, [data?.list, activeFilter]);
+
+    // Handler para el clic en una tarjeta
+    const handleCardClick = (statConfig) => {
+        // Si la tarjeta no tiene configuración de filtro, no hacemos nada
+        if (!statConfig.filter) return;
+
+        // Lógica Toggle: Si ya estaba activo este filtro, lo desactivamos. Si no, lo activamos.
+        if (activeFilter && activeFilter.value === statConfig.filter.value) {
+            setActiveFilter(null);
+        } else {
+            setActiveFilter(statConfig.filter);
+        }
+    };
+
+    // Botones de exportación (usamos filteredList para exportar lo que se ve)
     const header = (
         <div className="d-flex align-items-center justify-content-end gap-2">
 
@@ -33,7 +73,7 @@ const InformMain = ({ config, data, loading }) => {
             />
 
             <Button type="button" icon="pi pi-file-pdf" severity="danger" rounded
-                onClick={() => generatePDF(config, data.list)}
+                onClick={() => generatePDF(config, filteredList)}
                 tooltip="Exportar PDF"
                 tooltipOptions={{ position: 'bottom' }}
                 size="small"
@@ -76,19 +116,37 @@ const InformMain = ({ config, data, loading }) => {
             <CCardBody className="pt-0">
                 {/* MÉTRICAS (Usa StatsCardsOverview) */}
                 <div className="mb-4">
+
                     <StatsCardsOverview
                         config={config}
                         summary={data?.summary}
                         loading={loading}
+                        // Pasamos las props para manejar el click
+                        onCardClick={handleCardClick}
+                        activeFilter={activeFilter}
                     />
                 </div>
 
                 {/* TABLA (PrimeReact) */}
                 <div className="table-container border rounded">
+                    {/* Mensaje visual si hay un filtro activo */}
+                    {activeFilter && (
+                        <div className="bg-light p-2 border-bottom text-center text-muted small">
+                            Filtro activo: <strong>{activeFilter.value}</strong>
+                            <span
+                                className="ms-2 text-primary cursor-pointer"
+                                style={{ cursor: 'pointer', textDecoration: 'underline' }}
+                                onClick={() => setActiveFilter(null)}
+                            >
+                                (Quitar filtro)
+                            </span>
+                        </div>
+                    )}
+
                     <DataTable
                         ref={dt} // Conectamos la referencia
                         header={header} // Botones en el header
-                        value={data?.list || []}
+                        value={filteredList || []} // Lista filtrada
                         loading={loading}
                         stripedRows
                         size="small"
