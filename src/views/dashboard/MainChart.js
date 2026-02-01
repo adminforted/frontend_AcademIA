@@ -43,7 +43,7 @@ const MainChart = () => {
               pointHoverBackgroundColor: getStyle('--cui-info'),
               borderWidth: 2,
               data: [
-                random(50, 200),
+                random(50, 2000000),
                 random(50, 200),
                 random(50, 200),
                 random(50, 200),

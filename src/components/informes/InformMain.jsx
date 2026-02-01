@@ -1,6 +1,7 @@
 // frontend_AcademiA\src\components\informes\InformMain.jsx
 
-// Corazón visual del reporte de informes. Recibe los datos y los distribuye en las secciones del informe.
+// Corazón visual del reporte de informes. Renderiza la tabla.
+// Recibe los datos y los distribuye en las secciones del informe.
 
 import React, { useRef, useState, useEffect, useMemo } from 'react';
 import { CCard, CCardHeader, CCardBody } from '@coreui/react';
@@ -11,7 +12,10 @@ import { Column } from 'primereact/column';
 import StatsCardsOverview from '../../views/statsCards/StatsCardsOverview';
 import InformHeader from './InformHeader';
 
-import { generatePDF, generateExcel } from './exportUtils';
+// import { generatePDF, generateExcel } from './exportUtils';
+import { ExportExcelButton } from '../../components/exportUtils/exportExcelButton';
+import { ExportPDFButton } from '../../components/exportUtils/exportPDFButton';
+
 
 
 const InformMain = ({ config, data, loading }) => {
@@ -63,22 +67,18 @@ const InformMain = ({ config, data, loading }) => {
     const header = (
         <div className="d-flex align-items-center justify-content-end gap-2">
 
-            <Button type="button" icon="pi pi-file-excel" severity="success" rounded
-                onClick={() => generateExcel(config, data.list)}
-                tooltip="Exportar XLS"
-                tooltipOptions={{ position: 'bottom' }}
-                size="small"
-                // Deshabilitamos si no hay datos
-                disabled={loading || !data?.list?.length}
+            {/* Botón Excel Modularizado */}
+            <ExportExcelButton
+                config={config}
+                data={filteredList} // O data.list según corresponda
+                disabled={loading || !filteredList?.length}
             />
 
-            <Button type="button" icon="pi pi-file-pdf" severity="danger" rounded
-                onClick={() => generatePDF(config, filteredList)}
-                tooltip="Exportar PDF"
-                tooltipOptions={{ position: 'bottom' }}
-                size="small"
-                // Deshabilitamos si no hay datos
-                disabled={loading || !data?.list?.length}
+            {/* Botón PDF Modularizado */}
+            <ExportPDFButton
+                config={config}
+                data={filteredList}
+                disabled={loading || !filteredList?.length}
             />
         </div>
     );

@@ -1,5 +1,10 @@
 // frontend_AcademiA\src\components\informes\exportUtils.js
 
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
+
+
+
 /**
  * Genera un reporte en formato Excel (.xlsx) de forma dinámica
  * @param {Object} config - Objeto de configuración del informe

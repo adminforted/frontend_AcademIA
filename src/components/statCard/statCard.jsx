@@ -9,6 +9,7 @@ import './StatCard.css'; // ✅ Importar el CSS
 
 // --- Sub-componente: Tarjeta de Estadísticas (KPI) ---
 const StatCard = ({ title, value, icon, color, subtext }) => {
+    console.log ('Datos que recibe la StatCard: ', title, value, icon, color, subtext)
     return (
         <CCard
             className={`stat-card stat-card-${color} shadow-sm border-0 h-100 p-2`}
@@ -35,14 +36,6 @@ export default StatCard;
 
 
 /**
- * Componente reutilizable para mostrar una tarjeta de estadística (KPI).
- * 
- * Se utiliza para resaltar métricas clave como promedio general, materias aprobadas,
- * asistencia global, etc., con un diseño moderno que incluye:
- * - Título y valor principal destacado
- * - Icono decorativo con fondo de color
- * - Texto secundario opcional (subtext)
- * - Colores personalizables según el tipo de métrica (primary, success, info, danger, etc.)
  * 
  * Props:
  * - title: string - Título de la estadística (ej. "Promedio General")
@@ -50,7 +43,4 @@ export default StatCard;
  * - icon: icon - Icono de @coreui/icons-react a mostrar
  * - color: string - Color de Bootstrap (primary, success, info, danger, etc.)
  * - subtext: string (opcional) - Texto pequeño adicional debajo del valor
- * 
- * Ejemplo de uso:
- * <StatCard title="Promedio General" value="8.5" icon={cilChartLine} color="primary" subtext="Escala de 1 a 10" />
  */

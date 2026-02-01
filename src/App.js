@@ -23,8 +23,13 @@ const Register = React.lazy(() => import('./views/pages/register/Register'))
 const VerifyEmail = React.lazy(() => import('./views/pages/VerifyEmail/VerifyEmail'))
 const Page404 = React.lazy(() => import('./views/pages/page404/Page404'))
 const Page500 = React.lazy(() => import('./views/pages/page500/Page500'))
-const UserManagement = React.lazy(() => import('./views/UserManagement/UserManagement'))
 const Home = React.lazy(() => import('./views/home/Home'))
+
+
+const UserManagement = React.lazy(() => import('./views/UserManagement/UserManagement'))
+const UsuariosInformes = React.lazy(() => import('./views/users/usuariosInformes/UsuariosInformes'))
+
+const InscripcionCicloLectivo = React.lazy(() => import('./views/gestion/inscripciones/Inscripciones'))
 const Estudiante = React.lazy(() => import('./views/estudiantes/Estudiantes'))
 const EstudiantesInformes = React.lazy(() => import('./views/estudiantes/estudiantesInformes/EstudiantesInformes'))
 const Trayectoria = React.lazy(() => import('./views/estudiantes/Trayectoria'))
@@ -33,7 +38,7 @@ const CursoInformes = React.lazy(() => import('./views/cursos/CursoInformes'))
 const Materias = React.lazy(() => import('./views/materias/Materias'))
 const MateriasInformes = React.lazy(() => import('./views/materias/MateriasInformes'))
 const Docentes = React.lazy(() => import('./views/docentes/Docentes'))
-const DocenteInformes = React.lazy(() => import('./views/docentes/DocenteInformes'))
+const DocentesInformes = React.lazy(() => import('./views/docentes/docentesInformes/DocentesInformes'))
 const DocenteCargaNotas = React.lazy(() => import('./views/docentes/DocenteCargaNotas'))
 const Personal = React.lazy(() => import('./views/personal/Personal'))
 
@@ -92,8 +97,11 @@ const RouterContent = () => {
         <Route path="*" element={<DefaultLayout />}>
           <Route path="home" element={<ProtectedRoute> <Home /> </ProtectedRoute>} />
           <Route path="docentes" element={<ProtectedRoute>  <Docentes />  </ProtectedRoute>} />
-          <Route path="docentes/informes" element={<ProtectedRoute> <DocenteInformes /> </ProtectedRoute>} />
+          <Route path="docentes/informes" element={<ProtectedRoute> <DocentesInformes /> </ProtectedRoute>} />
           <Route path="docentes/cargaNotas" element={<ProtectedRoute> <DocenteCargaNotas /> </ ProtectedRoute>} />
+
+          <Route path="inscripcion" element={<ProtectedRoute> <InscripcionCicloLectivo /> </ ProtectedRoute>} />
+
           <Route path="estudiante" element={<ProtectedRoute> <Estudiante /> </ProtectedRoute>} />
           <Route path="estudiante/trayectoria" element={<ProtectedRoute> <Trayectoria /> </ProtectedRoute>} />
           <Route path="estudiante/informes" element={<ProtectedRoute> <EstudiantesInformes /> </ProtectedRoute>} />
@@ -103,13 +111,10 @@ const RouterContent = () => {
           <Route path="materias/informes" element={<ProtectedRoute> <MateriasInformes /> </ProtectedRoute>} />
           <Route path="personal" element={<ProtectedRoute> <Personal /> </ProtectedRoute>} />
 
-          <Route
-            path="usuarios" 
-            element={
-              <ProtectedRoute requiredRoles={['ADMIN_SISTEMA']}> 
-                <UserManagement /> 
-              </ProtectedRoute>
-            } />
+          <Route path="usuarios" element={
+            <ProtectedRoute requiredRoles={['ADMIN_SISTEMA']}> <UserManagement /> </ProtectedRoute>} />
+          <Route path="usuarios/informes" element={
+            <ProtectedRoute requiredRoles={['ADMIN_SISTEMA']}> <UsuariosInformes /> </ProtectedRoute>} />
 
           {/* Ruta por defecto para cualquier otra URL no coincidente dentro del layout */}
           <Route path="*" element={<Page404 />} />

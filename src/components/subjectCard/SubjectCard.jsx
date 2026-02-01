@@ -1,10 +1,11 @@
+// frontend_AcademiA\src\components\subjectCard\SubjectCard.jsx
+
 import React, { useState, memo } from 'react';
 import { CCard, CCardBody, CCollapse, CRow, CCol } from '@coreui/react';
 import CIcon from '@coreui/icons-react';
 import { cilSchool, cilCheckCircle, cilWarning, cilChevronBottom } from '@coreui/icons';
 
 import SubjectEvaluationHistory from '../subjectEvaluationHistory/SubjectEvaluationHistory'
-
 import { useNotasFinalesEstudiante } from '../../hooks/useNotasFinalesEstudiante'
 
 //const SubjectCard = ({ subject, isOpen, onToggle }) => {

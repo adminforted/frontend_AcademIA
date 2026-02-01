@@ -181,6 +181,7 @@ const Dashboard = () => {
       <WidgetsDropdown className="mb-4" />
       <CCard className="mb-4">
         <CCardBody>
+          
           <CRow>
             <CCol sm={5}>
               <h4 id="traffic" className="card-title mb-0">
@@ -206,6 +207,8 @@ const Dashboard = () => {
               </CButtonGroup>
             </CCol>
           </CRow>
+
+          
           <MainChart />
         </CCardBody>
         <CCardFooter>

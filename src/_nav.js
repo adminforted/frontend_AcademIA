@@ -109,7 +109,7 @@ const fullNavigation = [
 ];
 
 //--------------------------------------------------------------------------------
-// FUNCIÓN DE FILTRADO (MEJORADA: Soporte Multirrol y Limpieza de Grupos)
+// FUNCIÓN DE FILTRADO 
 // --------------------------------------------------------------------------------
 const filterNavItems = (items, userRoles) => {
 

@@ -1,146 +1,66 @@
 //  frontend_AcademiA\src\components\informes\GenericInform.jsx
 
-// Vista genérica de informes basada en configuración declarativa 
+// Vista genérica de informes basada en configuraciones e archivo 
+
+/**
+ * COMPONENTE DE PRESENTACIÓN (DUMB COMPONENT)
+ * -------------------------------------------
+ * Ya no gestiona filtros. Su única función es recibir un endpoint YA VALIDADO
+ * y mostrar la tabla de resultados.
+ * * @param {Object} config - Configuración visual (columnas, mappers).
+ * @param {string|null} endpoint - URL final para buscar la data del reporte. Si es null, no busca.
+ * @param {Object} params - Los filtros seleccionados para enviarlos al backend.
+ */
+
 
 import React from 'react';
-import {
-    CContainer, CCard, CCardBody, CAlert,
-    CRow, CCol, CFormSelect, CFormCheck, CFormLabel
-} from '@coreui/react';
+import { CContainer, CAlert } from '@coreui/react';
 
 import InformMain from '../../components/informes/InformMain';
 import { useInforme } from '../../components/informes/useInform';
-import { useInformesData } from '../../components/informes/hooks/useInformesData';
 
-export default function GenericInform({ config }) {
+
+import { useInformesData } from '../../components/informes/hooks/useInformesData';
+import  GenericInformFilters from './GenericInformFilters'
+
+
+
+export default function GenericInform({ config, endpoint, params }) {
 
     // Para verificar si llegan bien los filtros
     console.log('🤷‍♂️ [GenericInform] Configuraciones recibidas:', config);
     console.log('🤷‍♂️🤷‍♂️ [GenericInform] filters recibidos:', config?.filters);
 
-    // Hook genérico de datos de filtros
-    const informesData = useInformesData(config) || {};
-    const {
-        dataSources = {},
-        seleccion = {},
-        handleCambio = () => { },
-        loading: loadingFiltros = false,
-        error: errorFiltros = null
-    } = informesData;
-
-    // Validación automática: Recorre los filtros declarados y verifica required
-    const filtrosCompletos = config.filters.every(f =>
-        !f.required || Boolean(seleccion[f.key])
-    );
-    console.log('✔ Filtros completos?: ',filtrosCompletos)
-
-    // Endpoint solo se genera si todos los filtros configurados, están completos
-    const endpointActivo = filtrosCompletos
-        ? config.getEndpoint(seleccion)
-        : null;
-    console.log('✔✔ endpointActivo: ',endpointActivo)
-
+    // Hook específico para traer la DATA del reporte (filas de la tabla)
+    // OBS: distinto a useInformesData, que se usa para los filtros
     const { data, loading, error } = useInforme(
-        endpointActivo,
-        seleccion,
+        endpoint,
+        params, 
         config.mapper,
         config.summaryCalculator
     );
-    console.log('✔✔✔ Devuelto por useInforme: ',useInforme)
 
+// Si el padre no nos mandó un endpoint (porque faltan filtros), mostramos mensaje de espera.
+    if (!endpoint) {
+        return (
+            <div className="text-center py-5 text-muted bg-light border border-dashed rounded">
+                <i className="pi pi-filter me-2"></i>
+                Complete los filtros requeridos para visualizar el informe.
+            </div>
+        );
+    }
 
     return (
-        <div className="informes-wrapper pb-5">
-            <CContainer fluid>
+        <div className="pb-5 fade-in">
+             {/* Manejo de errores de RED o Backend al pedir el reporte */}
+            {error && <CAlert color="danger" className="mt-3">{error}</CAlert>}
 
-                {/* Título del informe */}
-                <h2 className="fw-bold mb-3">{config.title}</h2>
-
-                {/* Filtros */}
-                <CCard className="mb-4">
-                    <CCardBody>
-                        <CRow className="g-3">
-
-                            {/* Render dinámico de filtros */}
-                            {config.filters.map(filter => {
-                                console.log('🔑Filter key:', filter, filter.key, 'Type:', filter.type);
-
-                                const disabled =
-                                    filter.dependsOn &&
-                                    !seleccion[filter.dependsOn];
-
-                                // Si el tipo es SELECT: 
-                                if (filter.type === 'select') {
-                                    const options =
-                                        filter.options ||
-                                        dataSources[filter.key] ||
-                                        [];
-                                    console.log('🔑🔑 options en select:', options);
-                                    return (
-                                        <CCol md={3} key={filter.key}>
-                                            <CFormLabel>{filter.label}</CFormLabel>
-                                            <CFormSelect
-                                                value={seleccion[filter.key] || ''}
-                                                disabled={disabled}
-                                                onChange={(e) =>
-                                                    handleCambio(filter.key, e.target.value)
-                                                }
-                                            >
-                                                <option key="__default" value="">
-                                                    Seleccione...
-                                                </option>
-
-                                                {options.map((opt, idx) => (
-                                                    <option
-                                                        key={opt[filter.optionValue] || `opt-${idx}`}
-                                                        value={opt[filter.optionValue]}
-                                                    >
-                                                        {opt[filter.optionLabel]}
-                                                    </option>
-                                                ))}
-                                            </CFormSelect>
-                                        </CCol>
-                                    );
-                                }
-
-                                // Si el tipo es un CHECKBOX: 
-                                if (filter.type === 'checkbox') {
-                                    console.log('🔑🔑🔑 Checkbox: ', filter.key);
-                                    return (
-                                        <CCol md={3} key={filter.key}>
-                                            <CFormCheck
-                                                label={filter.label}
-                                                checked={Boolean(seleccion[filter.key])}
-                                                onChange={(e) =>
-                                                    handleCambio(filter.key, e.target.checked)
-                                                }
-                                            />
-                                        </CCol>
-                                    );
-                                }
-                                // Si no es un tipo reconocido, no renderizar nada
-                                // pero devolvemos un fragmento vacío CON key para evitar warnings
-                                return <React.Fragment key={filter.key} />;
-                            })}
-                        </CRow>
-                    </CCardBody>
-                </CCard>
-
-                {/* Errores */}
-                {(error || errorFiltros) && (
-                    <CAlert color="danger">
-                        {error || errorFiltros}
-                    </CAlert>
-                )}
-
-                {/* Informe */}
-                <InformMain
-                    config={config}
-                    data={data}
-                    loading={loading}
-                />
-
-            </CContainer>
+            {/* Componente principal que renderiza la Tabla o las Stats Cards */}
+            <InformMain
+                config={config}
+                data={data}
+                loading={loading}
+            />
         </div>
     );
 }

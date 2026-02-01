@@ -1,38 +1,28 @@
-// frontend_AcademiA\src\views\estudiantes\estudiantesInformes\EstudiantesInformes.jsx
-
-
 import React, { useState } from 'react';
-import { CCard, CCardHeader, CCardBody, CContainer, CRow, CCol } from '@coreui/react';
+import { CCard, CCardHeader, CCardBody, CContainer } from '@coreui/react';
 import { GenericSelector } from '../../../components/genericSelector/genericSelector/GenericSelector';
 
-// --- IMPORTACIONES GENÉRICAS  ---
-// Componente Genérico
+// Componentes Core (No modificar)
 import GenericInform from '../../../components/informes/GenericInform';
 import GenericInformFilters from '../../../components/informes/GenericInformFilters';
 import { useInformesData } from '../../../components/informes/hooks/useInformesData';
 
-// --- IMPORTACIÓN ESPECÍFICA ---
-// Configuración Jerárquica
-import { EstudiantesInformesConfig } from './EstudiantesInformesConfig';
+// Configuración Específica ( CAMBIAR )
+import { EntidadInformesConfig } from './EntidadInformesConfig'; 
 
-import './EstudiantesInformes.css';  // Ver si lo usa
-
-
-export default function EstudiantesInformes() {
-
-    // Inicializamos en '' (vacío) para que no haya ninguno seleccionado al inicio
+export default function EntidadInformes() { // (<<<< CAMBIAR NOMBRE COMPONENTE)
+    
     const [selectedReportKey, setSelectedReportKey] = useState('');
+    
+    // Referencia a la Config (<<<< CAMBIAR NOMBRE CONSTANTE)
+    const ConfigRef = EntidadInformesConfig; 
 
-    // Usamos la Config de ALUMNOS
-    const activeConfig = EstudiantesInformesConfig.reports[selectedReportKey] || null;
-    console.log('Valor de activeConfig: ', activeConfig)
-
-    // Instanciamos el hook
+    // Lógica Genérica
+    const activeConfig = ConfigRef.reports[selectedReportKey] || null;
     const informesData = useInformesData(activeConfig);
     const { seleccion, error: errorFiltros } = informesData;
 
-    // Validaciones standard
-    const filtrosCompletos = activeConfig
+    const filtrosCompletos = activeConfig 
         ? activeConfig.filters.every(f => !f.required || seleccion[f.key])
         : false;
 
@@ -40,37 +30,35 @@ export default function EstudiantesInformes() {
         ? activeConfig.getEndpoint(seleccion)
         : null;
 
-
-
     return (
         <div style={{ padding: '10px' }}>
-            <h1 className="ms-1">Gestión de Alumnos</h1>
+            <h1 className="ms-1">{ConfigRef.title}</h1> {/* Título Dinámico */}
             <CContainer>
                 <CCard className="mb-1">
                     <CCardHeader className="py-2 bg-white">
-                         {/* Títulos dinámicos desde la config */}
-                        <h4 className="mb-0">{EstudiantesInformesConfig.title}</h4>
-                        <div className="small text-muted">{EstudiantesInformesConfig.subtitle}</div>
+                        <h4 className="mb-0">{ConfigRef.title}</h4>
+                        <div className="small text-muted">{ConfigRef.subtitle}</div>
                     </CCardHeader>
 
                     <CCardBody className="px-4 pt-3 pb-4 border border-light">
-                        {/* Selector Principal */}
+                        {/* Selector de Tipo de Informe */}
                         <div className="mb-4 border-bottom pb-3">
                             <GenericSelector
-                                label={EstudiantesInformesConfig.mainSelector.label}
-                                options={EstudiantesInformesConfig.mainSelector.options}
+                                label={ConfigRef.mainSelector.label}
+                                options={ConfigRef.mainSelector.options}
                                 value={selectedReportKey}
                                 onChange={setSelectedReportKey}
-                                infoText={activeConfig ? activeConfig.subtitle : 'Seleccione un reporte'}
+                                infoText={activeConfig ? activeConfig.subtitle : 'Seleccione una opción'}
                             />
                         </div>
 
-                        {/* Motor de Informe */}
+                        {/* Área de Trabajo */}
                         {activeConfig ? (
                             <div className="animate__animated animate__fadeIn">
+                                {/* Filtros */}
                                 <div className="bg-light p-3 rounded mb-4 border">
                                     <h6 className="text-primary mb-3 ps-1 border-start border-3 border-primary">
-                                        Filtros
+                                        Filtros de Búsqueda
                                     </h6>
                                     <GenericInformFilters 
                                         informesData={informesData} 
@@ -79,6 +67,7 @@ export default function EstudiantesInformes() {
                                     {errorFiltros && <div className="text-danger">{errorFiltros}</div>}
                                 </div>
 
+                                {/* Resultados */}
                                 <GenericInform 
                                     config={activeConfig}
                                     endpoint={endpointActivo}
@@ -87,7 +76,7 @@ export default function EstudiantesInformes() {
                             </div>
                         ) : (
                             <div className="text-center py-5 text-muted">
-                                Seleccione un tipo de informe.
+                                Seleccione un tipo de informe para comenzar.
                             </div>
                         )}
                     </CCardBody>

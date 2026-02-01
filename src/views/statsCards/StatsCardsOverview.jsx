@@ -50,6 +50,7 @@ const StatsCardsOverview = ({ config, summary, loading, onCardClick, activeFilte
       Cada "stat" define UNA tarjeta KPI. */}
 
       {config.stats.map(stat => {
+        console.log('😎 Valores recibidos de los filtros: ',stat)
 
         //  Calculamos si la  tarjeta está activa o es clickeable ---
         const isActive = activeFilter && stat.filter && activeFilter.value === stat.filter.value;
