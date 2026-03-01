@@ -61,7 +61,7 @@ export const GenericSelector = ({
             <CRow className="align-items-end">
                 <CCol md={4} lg={3}>{renderSelect()}</CCol>
                 <CCol md={8} lg={9}>
-                    <div className="text-muted small mb-1 ms-2">row {infoText}</div>
+                    <div className="text-muted small mb-1 ms-2"> {infoText}</div>
                 </CCol>
             </CRow>
         );

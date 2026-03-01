@@ -75,7 +75,7 @@ const fullNavigation = [
             { component: CNavItem, name: 'Gestión de Personal', to: '/personal', roles: [ROL_ADMIN] },
             { component: CNavItem, name: 'Asistencia', to: '/asistencia', roles: [ROL_ADMIN] },
             { component: CNavItem, name: 'Inscripción a ciclo lectivo', to: '/inscripcion', roles: [ROL_ADMIN, ROL_DOCENTE] },
-            { component: CNavItem, name: 'Informes', to: '/informes-academicos', roles: [ROL_ADMIN, ROL_DOCENTE] },
+            { component: CNavItem, name: 'Informes', to: '/gestion/informes', roles: [ROL_ADMIN, ROL_DOCENTE] },
         ],
     },
 

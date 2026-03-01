@@ -152,10 +152,10 @@ export const EstudiantesInformesConfig = {
             // Configuración de columnas de la Tabla (para PrimeReact DataTable). 
             // Describe cómo renderizar cada campo
             columns: [
-                { field: 'alumno', header: 'Alumno', sortable: true, exportable: true },
+                { field: 'alumno', header: 'Alumno', sortable: true,  exportable: true },
                 {
-                    field: 'nota', header: 'Nota Final', sortable: true,
-                    bodyType: 'badge', // Le dice a la tabla que use Badge
+                    field: 'nota', header: 'Nota Final', sortable: true, align:'center',
+                    // bodyType: 'badge', // Le dice a la tabla que use Badge
                     severity: (val) => val >= 7 ? 'success' : 'danger',
                     exportable: true // Asegura que en Excel salga el número y no el componente HTML
                 },

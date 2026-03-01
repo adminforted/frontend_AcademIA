@@ -19,7 +19,7 @@ const InformHeader = ({ title, subtitle }) => {
                     </div>
                 </CCol>
                 <CCol md={4} className="text-md-end mt-3 mt-md-0">
-                    <small className="text-uppercase text-muted d-block">Fecha de Emisión</small>
+                    <small className="text-uppercase text-muted d-block">Fecha Informe</small>
                     <div className="fw-bold fs-5">{today}</div>
                 </CCol>
             </CRow>

@@ -1,4 +1,4 @@
-// frontend_AcademiA\src\views\docentes\docentesInformes\DocentesInformes.jsx
+// frontend_AcademiA\src\views\cursos\cursosInformes\CursosInformes.jsx
 
 
 import React, { useState } from 'react'
@@ -10,16 +10,16 @@ import GenericInform from '../../../components/informes/GenericInform';
 import GenericInformFilters from '../../../components/informes/GenericInformFilters'; 
 
 // Importamos la lógica y configuración
-import { DocentesInformesConfig } from './DocentesInformesConfig';
+import { CursosInformesConfig } from './CursosInformesConfig';
 import { useInformesData } from '../../../components/informes/hooks/useInformesData'; 
 
-export default function DocenteInformes() {
+export default function CursosInformes() {
 
     // Estado local solo para saber QUÉ informe quiere ver el usuario (la "key")
     const [selectedReportKey, setSelectedReportKey] = useState('');
     
     // Obtenemos la configuración completa del informe seleccionado (o undefined si no hay nada)
-    const activeConfig = DocentesInformesConfig.reports[selectedReportKey] || null;
+    const activeConfig = CursosInformesConfig.reports[selectedReportKey] || null;
 
     // Invocación del hook (lifting state up)
     // Instanciamos el hook AQUÍ en el padre. 
@@ -46,7 +46,7 @@ export default function DocenteInformes() {
 
     return (
         <div style={{ padding: '10px' }}>
-            <h1 className="ms-1">Docentes</h1>
+            <h1 className="ms-1">Cursos</h1>
             <CContainer>
                 <CCard className="mb-1">
                     
@@ -54,7 +54,7 @@ export default function DocenteInformes() {
                     <CCardHeader className="py-2 bg-white">
                         <CRow className="justify-content-between align-items-center">
                             <CCol xs={12} sm="auto">
-                                <h4 className="mb-0">Informes de Docentes</h4>
+                                <h4 className="mb-0">Informes de Cursos</h4>
                                 <div className="small text-muted">Reportes y gestión académica</div>
                             </CCol>
                         </CRow>
@@ -65,8 +65,8 @@ export default function DocenteInformes() {
                         {/* SELECCIÓN DEL TIPO DE INFORME */}
                         <div className="mb-2 pb-1">
                             <GenericSelector
-                                label={DocentesInformesConfig.mainSelector.label}
-                                options={DocentesInformesConfig.mainSelector.options}
+                                label={CursosInformesConfig.mainSelector.label}
+                                options={CursosInformesConfig.mainSelector.options}
                                 value={selectedReportKey}
                                 onChange={setSelectedReportKey}
                                 // Mostramos subtítulo dinámico según selección

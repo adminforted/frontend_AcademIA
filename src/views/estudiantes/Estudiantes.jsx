@@ -11,6 +11,7 @@ import { Column } from 'primereact/column'
 import { SelectButton } from 'primereact/selectbutton';
 import { Menu } from 'primereact/menu'; // Menu más ligero que TieredMenu si solo hay un nivel
 import { Button } from 'primereact/button';
+import { TieredMenu } from 'primereact/tieredmenu'
 
 // Estilos personalizados
 import './Estudiantes.css'
@@ -33,7 +34,7 @@ import apiEstudiantes from '../../api/apiEstudiantes.js'
 import { useStudentsData } from '../../hooks/useStudentsData.js'
 // Custom Hook para manejar modales, manejar errores y actualizar la tabla 
 import { useCrudModalManager } from '../../hooks/UseCrudModalManager/useCrudModalManager.js'
-import { TieredMenu } from 'primereact/tieredmenu'
+
 
 
 // Configuración de botones de menú de filas
@@ -55,6 +56,37 @@ const menuItemsConfig = (openEdit, openDelete) => [
 */
 
 
+// Componente auxiliar para detectar desbordamiento
+const TruncatedCell = ({ value }) => {
+    const spanRef = useRef(null);
+    const [isOverflowing, setIsOverflowing] = useState(false);
+
+    useEffect(() => {
+        if (spanRef.current) {
+            const el = spanRef.current;
+            setIsOverflowing(el.scrollWidth > el.clientWidth + 1);
+        }
+    }, [value]);
+
+    const content = (
+        <span
+            ref={spanRef}
+            className="d-inline-block text-truncate w-100"
+            style={{ cursor: isOverflowing ? 'pointer' : 'default' }}
+        >
+            {value}
+        </span>
+    );
+
+    // Solo renderizamos Tooltip si hay truncamiento
+    return isOverflowing ? (
+        <CTooltip content={String(value)} placement="top">
+            {content}
+        </CTooltip>
+    ) : (
+        content
+    );
+};
 
 export default function Estudiante() {
 
@@ -75,10 +107,10 @@ export default function Estudiante() {
         toast, setToast,             // Estado de notificaciones
         handleSave, handleDelete     // Funciones lógicas que llaman a la API
     } = useCrudModalManager({
-        createApi: apiEstudiantes.create,  // Mapeamos las funciones de tu API
+        createApi: apiEstudiantes.create,  // Mapeamos las funciones de la API
         updateApi: apiEstudiantes.update,
         deleteApi: apiEstudiantes.remove,
-        setData: setTableData              // Para actualizar la tabla al terminar
+        setData: setTableData              // Actualizar la tabla al terminar
     });
 
 
@@ -104,7 +136,7 @@ export default function Estudiante() {
                     rounded
                     text
                     severity="secondary"
-                    //aria-controls="popup_menu_left"
+                    aria-controls="popup_menu_left"
                     //aria-haspopup
                     onClick={(event) => {
                         // event.preventDefault();
@@ -118,18 +150,7 @@ export default function Estudiante() {
     };
 
 
-    /*
-    const actionBodyTemplate = (rowData) => {
-        return (
-            <ActionTableButtons
-                rowData={rowData}
-                openEdit={openEdit}      // Pasamos la función del hook
-                openDelete={openDelete}  // Pasamos la función del hook
-            />
-        );
-    }
-    */
-
+    
     // Cleanup para el menú de acciones
     useEffect(() => {
         return () => {
@@ -188,7 +209,8 @@ export default function Estudiante() {
 
     const menuItems = [
         {
-            label: 'Editar', icon: 'pi pi-pencil',
+            label: 'Editar',
+            icon: 'pi pi-pencil',
             command: () => {
                 if (selectedRowData) {
                     openEdit(selectedRowData);
@@ -197,7 +219,9 @@ export default function Estudiante() {
             }
         },
         {
-            label: 'Eliminar', icon: 'pi pi-trash', className: 'text-danger',
+            label: 'Eliminar',
+            icon: 'pi pi-trash',
+            className: 'text-danger',
             command: () => {
                 if (selectedRowData) {
                     openDelete(selectedRowData);
@@ -207,12 +231,14 @@ export default function Estudiante() {
         },
         { separator: true },
         {
-            label: 'Cancelar', icon: 'pi pi-times',
+            label: 'Cancelar',
+            icon: 'pi pi-times',
             command: () => {
                 menuRef.current?.hide()
             }
         }
     ];
+
 
 
 
@@ -319,8 +345,19 @@ export default function Estudiante() {
                                         key={col.field}
                                         field={col.field}
                                         header={col.header}
-                                        body={col.body} // Si no tiene body, valor por defecto
+                                        body={
+                                            col.body
+                                                ? col.body
+                                                : (rowData) => <TruncatedCell value={rowData[col.field]} />
+                                        }
+
+
+
                                         sortable={col.sortable}
+
+
+                                        // body={col.body} // Si no tiene body, valor por defecto
+                                        // sortable={col.sortable}
                                         filter
                                         filterPlaceholder="Buscar"
                                         // Desactivamos el menú de opciones (para que sea solo texto directo)
@@ -331,7 +368,7 @@ export default function Estudiante() {
                                 ))}
 
                                 <Column header="" body={actionBodyTemplate}
-                                    style={{ width: '100px', textAlign: 'left' }}
+                                    style={{ width: '3.5rem', textAlign: 'center' }}
                                 />
                             </DataTable>
                         </div>

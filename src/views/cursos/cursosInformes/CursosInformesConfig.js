@@ -1,39 +1,37 @@
-// frontend_AcademiA\src\views\users\usuariosInformes\UsuariosInformesConfig.js
+// frontend_AcademiA\src\views\cursos\cursosInformes\CursosInformesConfig.js
 
-// Archivo genérico de configuración de informes
 
-export const UsuariosInformesConfig = {
-    title: "Informes Usuarios",
-    subtitle: "Reportes y listados  ",
+export const CursosInformesConfig = {
+    title: "Título del Módulo (ej. Gestión de Pagos)",
+    subtitle: "Subtítulo descriptivo",
 
     // 1. Selector Maestro: Define qué reportes hay disponibles
     mainSelector: {
         key: 'tipo_informe',
-        label: 'Tipo de Informe',
+        label: 'Tipo de Reporte',
         options: [
-            { label: 'Listado de usuarios', value: 'listausuarios' },
+            { label: 'Nombre Reporte A', value: 'reporte_A' },
             { label: 'Nombre Reporte B', value: 'reporte_B' }
         ]
     },
 
     // 2. Definición de cada Reporte
     reports: {
-        'listausuarios': {
-            title: "Usuarios del sistema",
-            subtitle: "Listado de usuarios del sistema",
+        'reporte_A': {
+            title: "Título del Reporte A",
+            subtitle: "Descripción del Reporte A",
             
             // A. DEFINICIÓN DE FILTROS (Cascada)
             filters: [
                 {
-                    key: 'tipoUsuario',      // Nombre del parámetro para la API
-                    label: 'Tipo de usuario',    // Lo que ve el usuario
+                    key: 'filtro_padre',      // Nombre del parámetro para la API
+                    label: 'Filtro Padre',    // Lo que ve el usuario
                     type: 'select',
                     required: true,           // ¿Es obligatorio para buscar?
                     optionValue: 'id',        // Campo del JSON backend para el value
                     optionLabel: 'nombre',    // Campo del JSON backend para el texto
                     endpoint: 'api/entidad_padre/' // URL estática
                 },
-               /*
                 {
                     key: 'filtro_hijo',
                     label: 'Filtro Hijo (Dependiente)',
@@ -44,7 +42,6 @@ export const UsuariosInformesConfig = {
                     // Endpoint dinámico: recibe 'sel' con la selección actual
                     endpoint: (sel) => `api/entidad_hija/por_padre/${sel.filtro_padre}`
                 }
-                    */
             ],
 
             // B. ENDPOINT DE RESULTADOS

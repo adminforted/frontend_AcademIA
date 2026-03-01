@@ -1,3 +1,5 @@
+//  frontend_AcademiA\src\components\AppFooter.js
+
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext'; // Importar el hook para acceder a los datos de la sesi{on almacenados en AuthProvider
 import { CFooter } from '@coreui/react'
@@ -13,9 +15,9 @@ const AppFooter = () => {
     <CFooter className="px-4">
       <div>
         <a>
-          CoreUI
+          AcademIA
         </a>
-        <span className="ms-1">&copy; 2025</span>
+        <span className="ms-1">&copy; 2026</span>
       </div>
       <div className="ms-auto">
 

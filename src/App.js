@@ -23,19 +23,27 @@ const Register = React.lazy(() => import('./views/pages/register/Register'))
 const VerifyEmail = React.lazy(() => import('./views/pages/VerifyEmail/VerifyEmail'))
 const Page404 = React.lazy(() => import('./views/pages/page404/Page404'))
 const Page500 = React.lazy(() => import('./views/pages/page500/Page500'))
-const Home = React.lazy(() => import('./views/home/Home'))
 
+//const Home = React.lazy(() => import('./views/home/Home'))
+const Home = React.lazy(() => import('./views/home/homeDispatcher/HomeDispatcher'))
 
 const UserManagement = React.lazy(() => import('./views/UserManagement/UserManagement'))
 const UsuariosInformes = React.lazy(() => import('./views/users/usuariosInformes/UsuariosInformes'))
 
 const InscripcionCicloLectivo = React.lazy(() => import('./views/gestion/inscripciones/Inscripciones'))
+
+const EstudiantesHome = React.lazy(() => import('./views/estudiantes/estudiantesHome/EstudiantesHome'))
 const Estudiante = React.lazy(() => import('./views/estudiantes/Estudiantes'))
 const EstudiantesInformes = React.lazy(() => import('./views/estudiantes/estudiantesInformes/EstudiantesInformes'))
 const Trayectoria = React.lazy(() => import('./views/estudiantes/Trayectoria'))
+
 const Curso = React.lazy(() => import('./views/cursos/Curso'))
-const CursoInformes = React.lazy(() => import('./views/cursos/CursoInformes'))
+const CursoInformes = React.lazy(() => import('./views/cursos/cursosInformes/CursosInformes'))
+
 const Materias = React.lazy(() => import('./views/materias/Materias'))
+
+const GestionInformes = React.lazy(() => import('./views/gestion/gestionInformes/GestionInformes')) 
+
 const MateriasInformes = React.lazy(() => import('./views/materias/MateriasInformes'))
 const Docentes = React.lazy(() => import('./views/docentes/Docentes'))
 const DocentesInformes = React.lazy(() => import('./views/docentes/docentesInformes/DocentesInformes'))
@@ -96,15 +104,19 @@ const RouterContent = () => {
 
         <Route path="*" element={<DefaultLayout />}>
           <Route path="home" element={<ProtectedRoute> <Home /> </ProtectedRoute>} />
+
           <Route path="docentes" element={<ProtectedRoute>  <Docentes />  </ProtectedRoute>} />
           <Route path="docentes/informes" element={<ProtectedRoute> <DocentesInformes /> </ProtectedRoute>} />
           <Route path="docentes/cargaNotas" element={<ProtectedRoute> <DocenteCargaNotas /> </ ProtectedRoute>} />
 
           <Route path="inscripcion" element={<ProtectedRoute> <InscripcionCicloLectivo /> </ ProtectedRoute>} />
+          <Route path="gestion/informes" element={<ProtectedRoute> <GestionInformes /> </ ProtectedRoute>} />
 
+          <Route path="estudiante/home" element={<ProtectedRoute> <EstudiantesHome /> </ProtectedRoute>} />
           <Route path="estudiante" element={<ProtectedRoute> <Estudiante /> </ProtectedRoute>} />
           <Route path="estudiante/trayectoria" element={<ProtectedRoute> <Trayectoria /> </ProtectedRoute>} />
           <Route path="estudiante/informes" element={<ProtectedRoute> <EstudiantesInformes /> </ProtectedRoute>} />
+
           <Route path="cursos" element={<ProtectedRoute> <Curso /> </ProtectedRoute>} />
           <Route path="cursos/informes" element={<ProtectedRoute> <CursoInformes /> </ProtectedRoute>} />
           <Route path="materias" element={<ProtectedRoute> <Materias /> </ProtectedRoute>} />

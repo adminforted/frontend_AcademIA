@@ -54,17 +54,6 @@ export default function UsuariosInformes() { // (<<<< CAMBIAR NOMBRE COMPONENTE)
                         </CRow>
                     </CCardHeader>
 
-
-                    <CCardHeader className="py-2 bg-white">
-                        <h4 className="mb-0">{ConfigRef.title}</h4>
-                        <div className="small text-muted">{ConfigRef.subtitle}</div>
-                    </CCardHeader>
-
-
-
-
-
-
                     <CCardBody className="px-4 pt-3 pb-4 border border-light">
                         {/* Selector de Tipo de Informe */}
                         <div className="mb-4 border-bottom pb-3">

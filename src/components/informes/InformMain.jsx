@@ -105,7 +105,7 @@ const InformMain = ({ config, data, loading }) => {
     };
 
     return (
-        <CCard className="shadow-sm border-0">
+        <CCard className="shadow-sm border-2">
             <CCardHeader className="bg-white py-3 border-bottom-0">
                 <InformHeader
                     title={config.title}
@@ -149,18 +149,19 @@ const InformMain = ({ config, data, loading }) => {
                         value={filteredList || []} // Lista filtrada
                         loading={loading}
                         stripedRows
+                        showGridlines
                         size="small"
                         rows={10}
                         paginator
-                        className="p-datatable-sm custom-datatable"
-                        responsiveLayout="stack"
                         emptyMessage="No se encontraron registros para el informe."
                     >
                         {config.columns.map((col) => (
                             <Column
                                 key={col.field}
-                                field={col.field}
                                 header={col.header}
+                                alignHeader={col.alignHeader}
+                                field={col.field}
+                                align={col.align}
                                 sortable={col.sortable}
                                 body={(rowData) => bodyTemplate(rowData, col)}
                                 style={{ minWidth: '150px' }}

@@ -1,13 +1,13 @@
-//  frontend_AcademiA\src\views\home\Home.jsx
+//  frontend_AcademiA\src\views\docentes\docentesHome\DocentesHome.jsx
 
 import React, { useState, useEffect } from 'react'
 import { CButton, CCard, CCardHeader, CCardBody, CCardFooter, CCol, CRow, CContainer } from '@coreui/react'
-import Dashboard from '../dashboard/Dashboard'
-import MainChart from '../dashboard/MainChart'
+import Dashboard from '../../dashboard/Dashboard'
+import MainChart from '../../dashboard/MainChart'
 
 
 
-export default function Home() {
+export default function DocentesHome() {
 
     return (
         <CContainer>
@@ -18,7 +18,7 @@ export default function Home() {
                     <CRow className="justify-content-between align-items-center">
                         <CCol xs={12} sm="auto">
                             <h4 id="titulo" className="mb-0">
-                                Home
+                                Home Docentes
                             </h4>
                             <div className="small text-body-secondary">
                                 Panel inicial

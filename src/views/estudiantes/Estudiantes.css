@@ -75,15 +75,8 @@
     cursor: default;
 }
 
-/* Al pasar el mouse, se muestra el contenido completo */
-.estudiantes-wrapper .p-datatable-tbody>tr>td:hover {
-    white-space: normal;
-    overflow: visible;
-    position: relative;
-    z-index: 10;
-    background-color: white;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-}
+
+    
 
 
 /* PrimeReact envuelve el contenido del header de la tabla, en un contenedor con la clase .p-datatable-header.*/
@@ -180,55 +173,88 @@
     opacity: 0.6;
 }
 
+
 /* =======================================================
-   MENÚ DE ACCIONES (TieredMenu) 
+   BOTONES DE ACCIÓN (Columna de opciones)
    ======================================================= */
-/* Contenedor principal: angosto y sin paddings internos excesivos */
-.p-tieredmenu.p-menu-overlay {
-    width: auto !important;
-    min-width: 110px !important;
+
+/* Estado Normal (Reposo): Transparente total */
+.estudiantes-wrapper .p-datatable-tbody .p-button.p-button-rounded.p-button-text.p-button-secondary {
+    background-color: transparent !important; /* Fondo transparente */
+    border: none !important;                  /* Sin bordes */
+    box-shadow: none !important;              /* Sin sombras cuadradas */
+    color: #6c757d !important;                /* Color del ícono (gris medio) */
+    
+    /* Mantenemos la forma redonda y tamaño fijo */
+    border-radius: 50% !important;
+    width: 2.5rem !important;
+    height: 2.5rem !important;
     padding: 0 !important;
-    border: 1px solid #dee2e6 !important;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
-    border-radius: 8px !important;
+    min-width: unset !important;
+    transition: background-color 0.2s, color 0.2s; /* Transición suave */
 }
 
-/* Sin espacio a la izquierda (padding reservado para iconos/submenús) */
-.p-tieredmenu .p-menuitem-link {
-    padding: 0.5rem 0.75rem !important; /* Padding uniforme */
-    transition: background-color 0.2s;
+/* Estado Hover (Al pasar el mouse): Círculo gris oscuro */
+.estudiantes-wrapper .p-datatable-tbody .p-button.p-button-rounded.p-button-text.p-button-secondary:hover {
+    background-color: rgba(0, 0, 0, 0.1) !important; /* Gris semitransparente (se adapta al fondo) */
+    color: #212529 !important;                       /* Ícono más oscuro */
+    transform: scale(1.05);                          /* (Opcional) Efecto zoom muy sutil */
+}
+
+/* Estado Active/Focus (Al hacer clic): Gris un poco más fuerte */
+.estudiantes-wrapper .p-datatable-tbody .p-button.p-button-rounded.p-button-text.p-button-secondary:active,
+.estudiantes-wrapper .p-datatable-tbody .p-button.p-button-rounded.p-button-text.p-button-secondary:focus {
+    background-color: rgba(0, 0, 0, 0.15) !important;
+    box-shadow: none !important; /* Evita el anillo de foco azul/cuadrado */
+    border: none !important;
+}
+
+/* 4. Asegurar que el contenedor div no tenga fondo */
+.estudiantes-wrapper .p-datatable-tbody td .text-center {
+    background: transparent !important;
+}
+
+/* =======================================================
+   UX: MANEJO DE CONTENIDO LARGO (Text Ellipsis)
+   ======================================================= */
+.estudiantes-wrapper .p-datatable-tbody > tr > td {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: default;
+}
+
+/* =======================================================
+   MENÚ DE ACCIONES (TieredMenu) - CORRECCIONES VISUALES
+   ======================================================= */
+
+/* Quitar padding por defecto de la lista (causa del espacio extra a la izquierda) */
+body .p-tieredmenu .p-menu-list {
+    padding: 0 !important;
+    margin: 0 !important;
+    list-style: none !important;
+}
+
+/* Estilo del item (Link) */
+body .p-tieredmenu .p-menuitem-link {
+    padding: 0.6rem 1rem !important; /* Espaciado cómodo */
     display: flex !important;
     align-items: center !important;
+    text-decoration: none !important;
+    color: #343a40 !important;
+    border-radius: 0 !important;
+    transition: background-color 0.2s ease;
 }
 
-/* Ajuste de iconos: pegados al texto */
-.p-tieredmenu .p-menuitem-icon {
-    margin-right: 6px !important;
-    margin-left: 0 !important;
-    font-size: 0.85rem !important;
-    min-width: unset !important; /* Quita el ancho reservado de PrimeReact */
-    color: #6c757d; /* Gris suave para iconos */
+/* Iconos: Ajustar margen y color */
+body .p-tieredmenu .p-menuitem-icon {
+    margin-right: 0.6rem !important;
+    font-size: 1rem !important;
+    color: #6c757d !important;
 }
 
-/* Texto de las opciones: más pequeño y profesional */
-.p-tieredmenu .p-menuitem-text {
-    font-size: 0.85rem !important;
-    color: #495057 !important;
-}
-
-/* Color rojo específico para la opción de eliminar */
-.p-tieredmenu .text-danger .p-menuitem-text,
-.p-tieredmenu .text-danger .p-menuitem-icon {
-    color: #dc3545 !important;
-}
-
-/* Separador más sutil */
-.p-tieredmenu .p-menu-separator {
-    margin: 4px 0 !important;
-    border-top: 1px solid #f1f3f5 !important;
-}
-
-/* Efecto hover */
-.p-tieredmenu .p-menuitem-link:hover {
-    background-color: #f8f9fa !important;
+/* Hover: Fondo gris suave para destacar el item */
+body .p-tieredmenu .p-menuitem-link:hover {
+    background-color: #e9ecef !important; /* Gris visible */
+    color: #212529 !important;
 }

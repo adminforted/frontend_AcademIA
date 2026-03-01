@@ -107,7 +107,7 @@ const AcademicDashboard = () => {
         setCiclo(c.nombre_ciclo_lectivo);
         setCicloId(c.id_ciclo_lectivo);
 
-        setOpenSubject(null);   // Se pone para "limpiar" la interfaz.
+        setOpenSubject(null);   // Para "limpiar" la interfaz.
 
         console.log("🔄 Cambio de ciclo detectado:");
         console.log("ID capturado para el backend:", c.id_ciclo_lectivo);
@@ -206,7 +206,7 @@ const AcademicDashboard = () => {
                                 />
                         </div>
 
-                        {/* Sección de Asistencia (Extendida del mockup original) */}
+                        {/* Sección de Asistencia */}
                         <div className="mt-5">
                             <h4 className="fw-bold text-dark m-0 mb-3">Registro de Asistencias</h4>
                             <AttendanceSection
